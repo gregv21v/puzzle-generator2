@@ -1,0 +1,52 @@
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.heading {
+    display: inline-block;
+    width: 100%;
+    background-color: rgb(96, 96, 207);
+    border-radius: 5px;
+    user-select: none;
+}
+
+.title {
+    margin: 0;
+    padding-left: 10px;
+    float: left;
+}
+.icon {
+    margin: 0;
+    padding-right: 10px;
+    float:right;
+}
+
+.body {
+    display: block;
+    background-color: rgb(106, 104, 202);
+    clear: both;
+}
+
+.container {
+    flex-direction: column;
+    width: 300px;
+    border-radius: 5px;
+    background-color: turquoise;
+}
+
+
+.middle {
+    flex: 0.5;
+}
+
+.side {
+    flex: 0.25;
+}
+
