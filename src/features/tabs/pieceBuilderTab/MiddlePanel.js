@@ -1,18 +1,28 @@
 
-
+import React, { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedPieceId, setSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
 import { CanvasPanel } from "../../sidesPanel/CanvasPanel";
-
+import { downloadSvg } from "svg-crowbar"
 import { addPiece, removeAllPieces, removePiece } from "../../pieces/piecesSlice";
 
 /**
  * MiddlePanel - the middle panel of the piece builder tab
  */
 export function MiddlePanel({pieces}) {
+    const canvasRef = useRef(null)
     const selectedPieceId = useSelector(selectSelectedPieceId);
+    const [exportClicked, setExportClicked] = useState(false)
     const dispatch = useDispatch()
     let selectedPiece = pieces[selectedPieceId]
+
+
+    useEffect(() => {
+        if(exportClicked) {
+            downloadSvg(canvasRef.current.cloneNode(true), "test.svg");
+            setExportClicked(false);
+        }
+    }, [exportClicked])
 
     /**
      * copyPiece()
@@ -41,11 +51,19 @@ export function MiddlePanel({pieces}) {
         dispatch(removeAllPieces())
     }
 
+    /**
+     * exportAsSVG()
+     * @description exports the current canvas as an svg
+     */
+    function exportAsSVG() {
+        setExportClicked(true);
+    }
+
     return (
         <div>
-            <CanvasPanel pieces={pieces}></CanvasPanel>
+            <CanvasPanel ref={canvasRef} pieces={pieces}></CanvasPanel>
             <button onClick={copyPiece} title="creates a new piece based on the current constraints">Copy</button>
-            <button title="exports the puzzle pieces to an svg file">Export as SVG</button>
+            <button onClick={exportAsSVG} title="exports the puzzle pieces to an svg file">Export as SVG</button>
             <button title="loads an svg of pieces from a file" disabled>Load (NYI)</button>
             <button onClick={deleteAllPieces} title="clear all the puzzle pieces from the canvas">Clear</button>
             <button onClick={deletePiece} title="delete the currently selected piece">Delete</button>

@@ -9,26 +9,50 @@ export function ToolPanel({}) {
     const dispatch = useDispatch()
     const tool = useSelector(selectTool)
 
+    /**
+     * selectionTool()
+     * @description sets the tool to the selection tool
+     */
     function selectionTool() {
         dispatch(setTool(0))
     }
 
+    /**
+     * drawByRadiusTool()
+     * @description sets the tool to the draw by radius tool
+     */
     function drawByRadiusTool() {
         dispatch(setTool(1))
     }
 
+    /**
+     * drawBySideLengthTool()
+     * @description sets the tool to the draw by side length tool
+     */
     function drawBySideLengthTool() {
         dispatch(setTool(2))
     }
 
+    /**
+     * freeHandDrawTool()
+     * @description sets the tool to the free hand tool
+     */
     function freeHandDrawTool() {
         dispatch(setTool(3))
     }
 
+    /**
+     * editTool()
+     * @description sets the tool to the edit tool
+     */
     function editTool() {
         dispatch(setTool(4))
     }
 
+    /**
+     * lineTool()
+     * @description sets the tool to the line tool
+     */
     function lineTool() {
         dispatch(setTool(5))
     }
