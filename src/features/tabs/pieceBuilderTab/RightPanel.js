@@ -9,7 +9,9 @@ export function RightPanel({piece}) {
 
     return (
         <div>
-            <SidesPanel title="Sides" piece={piece} />
+            {
+                (piece.type === "sided") ? <SidesPanel title="Sides" piece={piece} /> : <p>No info</p>
+            }
         </div>
     )
 }

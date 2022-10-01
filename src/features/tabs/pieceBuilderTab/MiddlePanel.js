@@ -1,17 +1,19 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectSelectedPieceId, setSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
+import { selectSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
 import { CanvasPanel } from "../../sidesPanel/CanvasPanel";
 import { downloadSvg } from "svg-crowbar"
 import { addPiece, removeAllPieces, removePiece } from "../../pieces/piecesSlice";
+import { selectTool } from "../../tool/toolSlice";
 
 /**
  * MiddlePanel - the middle panel of the piece builder tab
  */
 export function MiddlePanel({pieces}) {
     const canvasRef = useRef(null)
-    const selectedPieceId = useSelector(selectSelectedPieceId);
+    const selectedPieceId = useSelector(selectSelectedPieceId)
+    const selectedTool = useSelector(selectTool)
     const [exportClicked, setExportClicked] = useState(false)
     const dispatch = useDispatch()
     let selectedPiece = pieces[selectedPieceId]
@@ -29,9 +31,7 @@ export function MiddlePanel({pieces}) {
      * @description copies the currently selected piece
      */
     function copyPiece() {
-        dispatch(
-            addPiece(selectedPiece)
-        )
+        dispatch(addPiece(selectedPiece))
     }
 
     /**

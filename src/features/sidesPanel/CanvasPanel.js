@@ -2,9 +2,11 @@ import { useEffect, useRef, useState, forwardRef } from "react";
 import { Piece } from "../piece/Piece";
 import * as d3 from "d3"
 import { SelectionBox } from "../selectionBox/SelectionBox";
-import { getPiecesWithinRect, rectWithinRect } from "../util/util";
-import { deselectAllPieces, selectPiecesAction } from "../pieces/piecesSlice";
-import { useDispatch } from 'react-redux';
+import { CirclePiece } from "../piece/CirclePiece";
+import { dist, getPiecesWithinRect } from "../util/util";
+import { addPiece, createCirclePiece, deselectAllPieces, selectPiecesAction, setPieceConstraints } from "../pieces/piecesSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTool } from "../tool/toolSlice";
 
 /**
  * CanvasPanel - the panel where all the pieces are drawn to 
@@ -15,11 +17,11 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     const [mouseIsDown, setMouseIsDown] = useState(false)
     const [selectionBoxHidden, setSelectionBoxHidden] = useState(true)
     const dispatch = useDispatch()
+    const tool = useSelector(selectTool)
 
     useEffect(() => {
         d3.select(svgRef.current)
             .on("mousedown", (event) => {
-                console.log("mousedown")
                 setStartPoint(d3.pointer(event))
                 setMouseIsDown(true)
                 setSelectionBoxHidden(false)
@@ -40,16 +42,29 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 
                     // select the pieces within the selection box
 
-                    let pieceIds = getPiecesWithinRect(pieces, {
-                        x: startPoint[0],
-                        y: startPoint[1],
-                        width: Math.abs(endPoint[0] - startPoint[0]),
-                        height: Math.abs(endPoint[1] - startPoint[1])
-                    })
-
-                    dispatch(deselectAllPieces())
-                    dispatch(selectPiecesAction(pieceIds))
-                    
+                    switch(tool) {
+                        case "Circle": 
+                            dispatch(addPiece({
+                                    id: 3,
+                                    x: startPoint[0],
+                                    y: startPoint[1],
+                                    color: "blue",
+                                    constraints: {
+                                        radius: dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
+                                    }
+                            }))
+                        case "Selection": 
+                            let pieceIds = getPiecesWithinRect(pieces, {
+                                x: startPoint[0],
+                                y: startPoint[1],
+                                width: Math.abs(endPoint[0] - startPoint[0]),
+                                height: Math.abs(endPoint[1] - startPoint[1])
+                            })
+        
+                            dispatch(deselectAllPieces())
+                            dispatch(selectPiecesAction(pieceIds))
+                        default: break;
+                    }
                 }
             })
     }, [pieces, mouseIsDown, startPoint, endPoint, dispatch])
@@ -60,12 +75,40 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
         }}>
             {
                 pieces.map(piece => {
-                    return (
-                        <Piece key={piece.id} piece={piece}></Piece>
-                    )
+                    if(piece.type === "sided") {
+                        return (
+                            <Piece key={piece.id} piece={piece}></Piece>
+                        )
+                    } else {
+                        return (
+                            <CirclePiece key={piece.id} piece={piece}></CirclePiece>
+                        )
+                    }
                 })
             }
-            <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
+        {
+            (() => {
+                switch(tool) {
+                    case "Circle":
+                        console.log("Circle tool selected");
+                        
+                        console.log(dist(startPoint, endPoint));
+                        return <CirclePiece piece={{
+                            id: 3,
+                            x: startPoint[0],
+                            y: startPoint[1],
+                            color: "blue",
+                            constraints: {
+                                radius: dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
+                            }
+                        }}> </CirclePiece>
+                    case "Selection": 
+                        return <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
+                    default: 
+                        return "Nothing"
+                }
+            })()
+        }
         </svg>
     </div>)    
 })

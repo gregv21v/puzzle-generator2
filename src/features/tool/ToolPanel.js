@@ -14,7 +14,7 @@ export function ToolPanel({}) {
      * @description sets the tool to the selection tool
      */
     function selectionTool() {
-        dispatch(setTool(0))
+        dispatch(setTool("Selection"))
     }
 
     /**
@@ -22,7 +22,7 @@ export function ToolPanel({}) {
      * @description sets the tool to the draw by radius tool
      */
     function drawByRadiusTool() {
-        dispatch(setTool(1))
+        dispatch(setTool("DrawByRadius"))
     }
 
     /**
@@ -30,7 +30,7 @@ export function ToolPanel({}) {
      * @description sets the tool to the draw by side length tool
      */
     function drawBySideLengthTool() {
-        dispatch(setTool(2))
+        dispatch(setTool("DrawBySideLength"))
     }
 
     /**
@@ -38,7 +38,7 @@ export function ToolPanel({}) {
      * @description sets the tool to the free hand tool
      */
     function freeHandDrawTool() {
-        dispatch(setTool(3))
+        dispatch(setTool("FreeHandDraw"))
     }
 
     /**
@@ -46,7 +46,7 @@ export function ToolPanel({}) {
      * @description sets the tool to the edit tool
      */
     function editTool() {
-        dispatch(setTool(4))
+        dispatch(setTool("Edit"))
     }
 
     /**
@@ -54,13 +54,22 @@ export function ToolPanel({}) {
      * @description sets the tool to the line tool
      */
     function lineTool() {
-        dispatch(setTool(5))
+        dispatch(setTool("Line"))
+    }
+
+
+    /**
+     * circleTool()
+     * @description sets the tool to the circle tool
+     */
+    function circleTool() {
+        dispatch(setTool("Circle"))
     }
     
     return (
         <div>
             <p>Tool selected: {
-                ["Selection", "Draw By Radius", "Draw By Side Length", "Free Hand", "Edit", "Line"][tool]
+                tool
             }</p>
             <button onClick={selectionTool}>Select</button>
             <button onClick={drawByRadiusTool} disabled>
@@ -72,6 +81,7 @@ export function ToolPanel({}) {
             <button onClick={freeHandDrawTool}>Free Hand Draw (NYI)</button>
             <button onClick={editTool} disabled>Edit (NYI) </button>
             <button onClick={lineTool} disabled> Line (NYI) </button>
+            <button onClick={circleTool}> Circle </button>
         </div>
     )
 }

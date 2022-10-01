@@ -19,19 +19,19 @@ export function PieceBuilderTab() {
 
     return (
         <div className={styles.row}>
-            <Panel title="Left" style={styles.side}>
+            <Panel title="" style={styles.side}>
                 <LeftPanel piece={pieces[selectedPieceId]}>
                     
                 </LeftPanel>
             </Panel>
                 
-            <Panel title="Middle" style={styles.middle}>
+            <Panel title="" style={styles.middle}>
                 <MiddlePanel pieces={pieces}>
 
                 </MiddlePanel>
             </Panel>
             
-            <Panel title="Right" style={styles.side}>
+            <Panel title="" style={styles.side}>
                 <RightPanel piece={pieces[selectedPieceId]}>
 
                 </RightPanel>

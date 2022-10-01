@@ -8,7 +8,19 @@ export function LeftPanel({piece}) {
     return (
         <div>
             <ToolPanel></ToolPanel>
-            <ConstraintsPanel piece={piece}></ConstraintsPanel>
+
+            {
+                (() => {
+                    switch(piece.type) {
+                        case "sided": 
+                            return <ConstraintsPanel piece={piece}></ConstraintsPanel>
+                        case "circle": 
+                            return <p>Circle</p>
+                        default: 
+                            return <div></div>
+                    }
+                })()
+            }
         </div>
     )
 }

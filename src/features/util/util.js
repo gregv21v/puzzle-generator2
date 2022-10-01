@@ -2,6 +2,19 @@ import Line from "./Line"
 
 
 /**
+ * dist()
+ * @description finds the distance between a start and end point
+ * @param {Point} start the starting point
+ * @param {Point} end the ending point
+ */
+export function dist(start, end) {
+    return Math.sqrt(
+        Math.pow(start.x - end.x, 2) + 
+        Math.pow(start.y - end.y, 2)
+    )
+}
+
+/**
  * pointWithinRect()
  * @description checks to see if a given point is within a given rectangle
  * @param {x, y} point the point to check for
@@ -113,47 +126,29 @@ export function rectWithinRect(rect1, rect2) {
 export function getPiecesWithinRect(pieces, rect) {
     let ids = [];
     for(const piece of pieces) {
-        let pieceWithinRect = true;
-        let points = []
 
-        let radius = piece.constraints.radius
-        if(piece.useSideLength) { // if using side length
-            let theta = 360 / piece.sides.length // the angle to subdivide with
-            radius = piece.constraints.sideLength / (2 * Math.tan((theta/2) * (Math.PI / 180)))
-        } 
+        let radius = piece.constraints.radius;
 
-        for (let index = 0; index < piece.sides.length; index++) {
-            let angle1 = (index) * (360 / piece.sides.length)
-            let angle2 = (index+1) * (360 / piece.sides.length)
-    
-            let startPoint = {
-                x: piece.x + radius * Math.sin(angle1 * (Math.PI / 180)),
-                y: piece.y + radius * Math.cos(angle1 * (Math.PI / 180))
-            }
-            
-            let endPoint = {
-                x: piece.x + radius * Math.sin(angle2 * (Math.PI / 180)),
-                y: piece.y + radius * Math.cos(angle2 * (Math.PI / 180))
-            }
-
-            points = points.concat(createPointsForSide(piece.sides[index].constraints, startPoint, endPoint))
+        // if using side length
+        if(piece.type === "sided" && piece.useSideLength) {
+            let theta = 360 / piece.sides.length; // the angle to subdivide with
+            radius = piece.constraints.sideLength / (2 * Math.tan((theta/2) * (Math.PI / 180)));
         }
 
-        for (const point of points) {
-            if(!pointWithinRect(point, rect)) {
-                pieceWithinRect = false;
-                break;
-            }
-        }
 
-        if(pieceWithinRect) {
+        if(
+            radius <= piece.x - rect.x && piece.x - rect.x <= rect.width - radius &&
+            radius <= piece.y - rect.y && piece.y - rect.y <= rect.height - radius
+        ) {
             ids.push(piece.id)
         }
     }
 
-    console.log(ids);
+    //console.log(ids);
     return ids;
 }
+
+
 
 
 

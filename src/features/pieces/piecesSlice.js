@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = [
   {
     id: 0, 
+    type: "sided",
     x: 100,
     y: 100,
     selected: true,
@@ -33,6 +34,16 @@ const initialState = [
         }
       }
     ]
+  },
+
+  {
+    id: 1, 
+    x: 200,
+    y: 200,
+    color: "blue",
+    constraints: {
+      radius: 40
+    },
   }   
 ];
 
@@ -168,6 +179,7 @@ export const piecesSlice = createSlice({
         ...state, 
         {
           id: 0, 
+          type: "sided",
           x: 100,
           y: 100,
           selected: false,
@@ -179,6 +191,28 @@ export const piecesSlice = createSlice({
               sideLength: 40
           },
           sides: []
+        }
+      ]
+    },
+
+
+    /**
+     * createPiece()
+     * @description creates a new circle piece from scratch
+     */
+    createCirclePiece: (state, action) => {
+      return [
+        ...state, 
+        {
+          id: 0, 
+          type: "circle",
+          x: 100,
+          y: 100,
+          selected: false,
+          color: "blue",
+          constraints: {
+            radius: 40
+          }
         }
       ]
     },
@@ -201,6 +235,25 @@ export const piecesSlice = createSlice({
       return state.filter(piece => piece.id !== action.payload)
     },
 
+
+    /**
+     * setPieceRadius() 
+     * @description sets the radius of the piece
+     * @param pieceId the id of the piece to set the radius of 
+     * @param radius the new radius to set the piece to 
+     */
+    setPieceRadius: (state, action) => {
+      return state.map(piece => {
+        if(piece.id === action.payload.pieceId) {
+          return {
+            ...piece,
+            radius: action.payload.radius
+          }
+        } else {
+          return piece
+        }
+      })
+    },
 
     /**
     * setPieceConstraints() 
@@ -301,8 +354,10 @@ export const {
   removePiece,
   setPieceConstraints,
   createPiece,
+  createCirclePiece,
   removeAllPieces,
   selectPiecesAction,
+  setPieceRadius,
   pieceUseRadius,
   pieceUseSideLength
 } = piecesSlice.actions;
