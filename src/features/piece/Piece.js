@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
-import { createPointsForSide } from "../util/util";
+import { createPathForArcSide, createPathForArcToSide, createPathForLineSide } from "../util/util";
 
 
 
@@ -21,15 +21,17 @@ export function Piece({piece}) {
      * Implements the ability to drag pieces around the canvas
      */
     useEffect(() => {    
+        
         const handleDrag = d3.drag()
             .on('drag', function(event) {
                 //dispatch(deselectAllPieces())
                 //dispatch(selectPiece([piece.id]))
-                dispatch(movePiece({
-                    pieceId: piece.id,
-                    x: event.x,
-                    y: event.y
-                }))
+                if(piece.selected)     
+                    dispatch(movePiece({
+                        pieceId: piece.id,
+                        x: event.x,
+                        y: event.y
+                    }))
             });
         handleDrag(d3.select(pathRef.current));
     }, [piece])
@@ -49,10 +51,10 @@ export function Piece({piece}) {
                 radius = piece.constraints.sideLength / (2 * Math.tan((theta/2) * (Math.PI / 180)))
             } 
 
-
-            let allPoints = []
+    
             for (let index = 0; index < piece.sides.length; index++) {
                 const side = piece.sides[index];
+
                 let angle1 = (index) * (360 / piece.sides.length)
                 let angle2 = (index+1) * (360 / piece.sides.length)
 
@@ -66,15 +68,24 @@ export function Piece({piece}) {
                     y: piece.y + radius * Math.cos(angle2 * (Math.PI / 180))
                 }
 
-                allPoints = allPoints.concat(createPointsForSide(side.constraints, startPoint, endPoint))
+                if(index === 0) {
+                    path.moveTo(startPoint.x, startPoint.y);
+                }
+
+                switch(side.type) {
+                    case "line": 
+                        createPathForLineSide(path, side.constraints, startPoint, endPoint);
+                        break;
+                    case "arc":
+                        createPathForArcSide(path, side.constraints, {x: side.x, y: side.y})
+                        break;
+                    case "arcTo":
+                        createPathForArcToSide(path, side.constraints, startPoint, endPoint)
+                    default:
+                        break;
+                }
             }
 
-            //console.log(allPoints);
-            
-            path.moveTo(allPoints[0].x, allPoints[0].y)
-            for(const point of allPoints) {
-                path.lineTo(point.x, point.y)
-            }
             path.closePath()
         }
 

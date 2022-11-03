@@ -11,14 +11,17 @@ export function LeftPanel({piece}) {
 
             {
                 (() => {
-                    switch(piece.type) {
-                        case "sided": 
-                            return <ConstraintsPanel piece={piece}></ConstraintsPanel>
-                        case "circle": 
-                            return <p>Circle</p>
-                        default: 
-                            return <div></div>
-                    }
+                    if(piece)
+                        switch(piece.type) {
+                            case "sided": 
+                                return <ConstraintsPanel piece={piece}></ConstraintsPanel>
+                            case "circle": 
+                                return <p>Circle</p>
+                            default: 
+                                return <div></div>
+                        }
+                    else 
+                        return <div></div>
                 })()
             }
         </div>

@@ -18,6 +18,14 @@ export function ToolPanel({}) {
     }
 
     /**
+     * shapeTool()
+     * @description sets the tool to the shape tool
+     */
+    function shapeTool() {
+        dispatch(setTool("Shape"))
+    }
+
+    /**
      * drawByRadiusTool()
      * @description sets the tool to the draw by radius tool
      */
@@ -71,6 +79,7 @@ export function ToolPanel({}) {
             <p>Tool selected: {
                 tool
             }</p>
+            <button onClick={shapeTool}>Shape Tool</button>
             <button onClick={selectionTool}>Select</button>
             <button onClick={drawByRadiusTool} disabled>
                 Draw By Radius (NYI)
@@ -78,7 +87,7 @@ export function ToolPanel({}) {
             <button onClick={drawBySideLengthTool} disabled>
                 Draw By Side Length (NYI)
             </button>
-            <button onClick={freeHandDrawTool}>Free Hand Draw (NYI)</button>
+            <button onClick={freeHandDrawTool}>Free Hand Draw</button>
             <button onClick={editTool} disabled>Edit (NYI) </button>
             <button onClick={lineTool} disabled> Line (NYI) </button>
             <button onClick={circleTool}> Circle </button>

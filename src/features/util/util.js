@@ -41,26 +41,31 @@ export function rectWithinRect(rect1, rect2) {
 }
 
 /**
- * createPointsForSide()    
- * @description creates the points for a side of the piece
+ * createPathForLineSide()    
+ * @description creates the Path for a side of the piece
  * @param {Object} constraints an object containing the constraints of the side 
  * @param {Point} startPoint the start point of the side 
  * @param {Point} endPoint the end point of the side
- * @returns an array of points
+ * @returns an array of Path
  */
- export function createPointsForSide(constraints, startPoint, endPoint) {
-    let points = [];
-    points.push(startPoint)
+ export function createPathForLineSide(path, constraints, startPoint, endPoint) {
+
+    let subdivisions = constraints.subdivisions;
+    if(constraints.useTabWidth) {
+        subdivisions = dist(startPoint, endPoint) / constraints.tabWidth;
+    } 
+    //let points = [];
+    //points.push(startPoint)
     
     //console.log("Start Point: " + JSON.stringify(startPoint));
     //console.log("End Point: " + JSON.stringify(constraints.endPoint));
 
-    let deltaX = (endPoint.x - startPoint.x) / constraints.subdivisions
-    let deltaY = (endPoint.y - startPoint.y) / constraints.subdivisions
+    let deltaX = (endPoint.x - startPoint.x) / subdivisions
+    let deltaY = (endPoint.y - startPoint.y) / subdivisions
     let line = new Line(startPoint, endPoint)
     let perpendicularVector = line.getPerpendicularVector();
     
-    for(let j = 0; j < constraints.subdivisions+1; j++) {
+    for(let j = 0; j < subdivisions+1; j++) {
 
         let D1 = {
             x: (startPoint.x + deltaX * (j-1)) + constraints.tabLength * perpendicularVector.x,
@@ -75,47 +80,107 @@ export function rectWithinRect(rect1, rect2) {
         if(constraints.startIn) { // output: _-_
             if(j % 2 === 0 && j > 0) {
                 // outward tab 
-                points.push(D1) // line outward perpendicular to the start point 
-                points.push(D2) // line across
-                points.push({
+                path.lineTo(D1.x, D1.y)//points.push(D1) // line outward perpendicular to the start point 
+                path.lineTo(D2.x, D2.y)//points.push(D2) // line across
+                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                /*points.push({
                     x: startPoint.x + deltaX * j,
                     y: startPoint.y + deltaY * j
-                }) // line back to the original line
+                })*/ // line back to the original line
             } else { // inward tab
-                points.push({
+                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                /*points.push({
                     x: startPoint.x + deltaX * j,
                     y: startPoint.y + deltaY * j
-                })
+                })*/
             }
         } else { // output: -_-
             if(j % 2 === 1) {
-                points.push(D1) // line outward perpendicular to the start point 
-                points.push(D2) // line across
-                points.push({
+                path.lineTo(D1.x, D1.y)//points.push(D1) // line outward perpendicular to the start point 
+                path.lineTo(D2.x, D2.y)//points.push(D2) // line across
+                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                /*points.push({
                     x: startPoint.x + deltaX * j,
                     y: startPoint.y + deltaY * j
-                }) // line back to the original line
+                }) */// line back to the original line
             } else {
-                points.push({
+                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                /*points.push({
                     x: startPoint.x + deltaX * j,
                     y: startPoint.y + deltaY * j
-                })
+                })*/
             }
         }
 
-
+        
         
     }
-    points.push(endPoint);
+    path.lineTo(endPoint.x, endPoint.y);
 
-    return points;
+    return path;
 }
 
 
+/**
+ * createPointsForArcSide()    
+ * @description creates the points for a side of the piece
+ * @param {Object} constraints an object containing the constraints of the side 
+ * @param {Point} point the control point of the arc
+ * @param {Radians} startAngle the start angle in radians
+ * @param {Radians} endAngle the end angle in radians
+ * @returns an array of points
+ */
+export function createPathForArcSide(path, constraints, point) {
+
+    path.moveTo(
+        point.x + (constraints.radius) * Math.cos(constraints.startAngle),
+        point.y + (constraints.radius) * Math.sin(constraints.startAngle)
+    )
+    
+    let angle = (constraints.endAngle - constraints.startAngle) / constraints.subdivisions
+    let offset = 0;
+    
+    for(let i = 0; i < constraints.subdivisions; i++) {
+        
+        path.arc(point.x, point.y, constraints.radius, angle * (i+offset), angle * (i+offset+1))
+        path.lineTo(
+            point.x + (constraints.radius + constraints.tabLength) * Math.cos(angle * (i+offset+1)),
+            point.y + (constraints.radius + constraints.tabLength) * Math.sin(angle * (i+offset+1))
+        )
+        path.arc(point.x, point.y, constraints.radius + constraints.tabLength, angle * (i+offset+1), angle * (i+offset+2))
+        path.lineTo(
+            point.x + (constraints.radius) * Math.cos(angle * (i+offset+2)),
+            point.y + (constraints.radius) * Math.sin(angle * (i+offset+2))
+        )
+
+        offset += 1;
+    }
+
+    return path;
+}
 
 
+/**
+ * createPointsForArcToSide()    
+ * @description creates the points for an arced side of the piece
+ * @param {Object} constraints an object containing the constraints of the side 
+ * @param {Point} startPoint the starting point of the arc
+ * @param {Point} endPoint the ending point of the arc
+ * @returns an array of points
+ */
+export function createPathForArcToSide(path, constraints, startPoint, endPoint) {
+    console.log(endPoint);
+    
+    let line = new Line(startPoint, endPoint);
+    let perpendicularVector = line.getPerpendicularVector();
+    path.quadraticCurveTo(
+        (endPoint.x - startPoint.x) / 2 - perpendicularVector.x, 
+        (endPoint.y - startPoint.y) / 2 - perpendicularVector.y,
+        endPoint.x, endPoint.y
+    );
 
-
+    return path;
+}
 
 
 /**
@@ -125,7 +190,7 @@ export function rectWithinRect(rect1, rect2) {
  */
 export function getPiecesWithinRect(pieces, rect) {
     let ids = [];
-    for(const piece of pieces) {
+    for(const piece of Object.values(pieces)) {
 
         let radius = piece.constraints.radius;
 

@@ -2,7 +2,10 @@ import React from 'react';
 import { Panel } from '../panel/Panel';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createPiece, addSide, removeSide, selectPieces, setSideConstraints } from '../pieces/piecesSlice';
+import { createPiece, addSide, removeSide, selectPieces } from '../pieces/piecesSlice';
+import { NumberConstraint } from '../constraints/NumberConstraint';
+import { BooleanConstraint } from '../constraints/BooleanConstraint';
+import { PointConstraint } from '../constraints/PointConstraint';
 
 
 /**
@@ -26,70 +29,38 @@ export function SidesPanel({title, piece}) {
      */
     function addSideBtnOnClick() {  
 
-
         if(pieces.length <= 0) {
             dispatch(createPiece())
         }
 
-        dispatch(addSide({
-            pieceId: piece.id,
-            side: {
-                constraints: {
-                    subdivisions: 3, tabLength: 10, startIn: false
-                }
-            }   
-        }))
+        switch(piece.type) {
+            case "sided": 
+                dispatch(addSide({
+                    pieceId: piece.id,
+                    side: {
+                        type: "line",
+                        constraints: {
+                            subdivisions: 4, tabLength: 10, startIn: false
+                        }
+                    }   
+                }))
+                break;
+            case "free":
+                dispatch(addSide({
+                    pieceId: piece.id,
+                    side: {
+                        type: "line",
+                        start: {x: 0, y: 0},
+                        end: {x: 0, y: 0},
+                        constraints: {
+                            subdivisions: 4, tabLength: 10, startIn: false
+                        }
+                    }   
+                }))
+        }
+        
     }
 
-
-    /**
-     * onTabLengthChange()
-     * @description updates the sides tabLength value when the input field is changed
-     * @param {number} sideId the id of the side to change the tabLength of 
-     * @param {Event} event the on change event
-     */
-    function onTabLengthChange(sideId, event) {
-        console.log(sideId);
-        dispatch(setSideConstraints({
-            pieceId: piece.id,
-            sideId: sideId,
-            constraints: {
-                tabLength: event.target.value
-            }
-        }))
-    }
-
-    /**
-     * onSubdivisionsChange()
-     * @description updates the sides subdivisions value when the input field is changed
-     * @param {number} sideId the id of the side to change the subdivisions of 
-     * @param {Event} event the on change event
-     */
-    function onSubdivisionsChange(sideId, event) {
-        dispatch(setSideConstraints({
-            pieceId: piece.id,
-            sideId: sideId,
-            constraints: {
-                subdivisions: event.target.value
-            }
-        }))
-    }
-
-    /**
-     * onStartInChange()
-     * @description updates the sides start in value when the input field is changed
-     * @param {number} sideId the id of the side to change the start in of 
-     * @param {Event} event the on change event
-     */
-    function onStartInChange(sideId, event) {
-        dispatch(setSideConstraints({
-            pieceId: piece.id,
-            sideId: sideId,
-            constraints: {
-                startIn: event.target.value
-            }
-        }))
-    }
 
     return (
         <Panel title={title}>
@@ -97,41 +68,72 @@ export function SidesPanel({title, piece}) {
                 (piece) ? piece.sides.map(side => {
                     return (
                         <Panel title={side.id} key={side.id}>
-                            <div>
-                                <label htmlFor="TabLength">
-                                    Tab Length (px): 
-                                    <input 
-                                        type="number"  
-                                        value={side.constraints.tabLength} 
-                                        onChange={(event) => onTabLengthChange(side.id, event)}
-                                    />
-                                </label>
-                            </div>
-                            
-                            <div>
-                                <label htmlFor="subdivisions">
-                                    Subdivision: 
-                                    <input 
-                                        type="number" 
-                                        value={side.constraints.subdivisions} 
-                                        onChange={(event) => onSubdivisionsChange(side.id, event)}
-                                    />
-                                </label>
-                            </div>
+
+                            <table style={{fontSize: 10}}>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Property</th>
+                                        <th>Computed</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        Object.keys(side.constraints).map(key => {
+                                            switch(side.constraints[key].type) {
+                                                case "number": 
+                                                    return (
+                                                        <NumberConstraint 
+                                                            key={key} 
+                                                            id={key} 
+                                                            side={side} 
+                                                            piece={piece}
+                                                            onChangeHandler={(sideId, event) => {
+                                                                console.log("Test");
+                                                            }}
+                                                        >
+                                                        </NumberConstraint>
+                                                    )
+                                                case "boolean": 
+                                                    return (
+                                                        <BooleanConstraint
+                                                            key={key}
+                                                            id={key}
+                                                            side={side}
+                                                            piece={piece}
+                                                            onChangeHandler={(sideId, event) => {
+                                                                console.log("Boolean Constraint");
+                                                            }}
+                                                        >
+                                                        </BooleanConstraint>
+                                                    )
+                                                case "boolean": 
+                                                    return (
+                                                        <PointConstraint
+                                                            key={key}
+                                                            id={key}
+                                                            side={side}
+                                                            piece={piece}
+                                                            onChangeX={(sideId, event) => {
+                                                                console.log("Boolean Constraint");
+                                                            }}
+                                                            onChangeY={(sideId, event) => {
+                                                                console.log("Boolean Constraint");
+                                                            }}
+                                                        >
+                                                        </PointConstraint>
+                                                    )
+                                            }
+                                        })
+                                    }
+                                </tbody>
+                            </table>
 
                             <div>
-                                <label htmlFor="startIn">
-                                    Start In: 
-                                    <input 
-                                        type="checkbox" 
-                                        value={side.constraints.startIn} 
-                                        onChange={(event) => onStartInChange(side.id, event)}
-                                    />
-                                </label> 
-                            </div>
-
-                            <div>
-                                <button onClick={() => dispatch(removeSide(side.id))}>-</button>
+                                <button onClick={() => dispatch(removeSide({
+                                    pieceId: piece.id,
+                                    sideId: side.id
+                                }))}>-</button>
                             </div>
                         </Panel>
                     )

@@ -46,5 +46,26 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## TODO
-1) Implement the ability to create selection boxes with "negative" width and height
+* Implement the ability to create selection boxes with "negative" width and height
+
+* Implement snap to grid, and snap to axis functionality
+    * How to:
+        - When you access align a line, you make it so the second point of the line is always on the same 
+        axis as the first point. For instance, if you want to y-align a line wherever you move the second point 
+        it will only change the x point of it.
+
+* Implement the ability to move a free form piece
+    * How to:
+        Each point on the free form piece moves relative to the cursor
+
+* Add the ability to edit the vertices that make up the free form pieces as well as other pieces
+    * How to:
+        - When you enter edit mode all the vertices on the currently selected pieces turn to boxes. 
+        You can then move these boxes in order to edit the vertices 
+        - For the sided piece there is a box in the middle, and a box on the edge. When you move the 
+        box on edge you adjust the radius, and rotation of the sided peice. When you move the box in the center
+        you adjust the radius and the position of the piece.
+    
+
+
 
