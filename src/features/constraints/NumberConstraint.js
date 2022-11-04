@@ -6,10 +6,11 @@
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
- import { toggleSideConstraintComputed } from "../pieces/piecesSlice"
+ import { setSideConstraintsValue, toggleSideConstraintComputed } from "../pieces/piecesSlice"
  import { useDispatch } from 'react-redux';
-
-export function NumberConstraint({id, side, piece, onChangeHandler}) {
+ import { getDisplayName } from "../util/util";
+ 
+export function NumberConstraint({id, side, piece, updateConstraints}) {
 
     const dispatch = useDispatch();
 
@@ -25,15 +26,32 @@ export function NumberConstraint({id, side, piece, onChangeHandler}) {
         }))
     }
 
+    /**
+     * onConstraintChanged()
+     * @description updates the constraint when the text box changes
+     * @param {Event} event the change event
+     */
+    function onConstraintChanged(event) {
+        dispatch(setSideConstraintsValue({
+            pieceId: piece.id,
+            sideId: side.id,
+            constraintId: id,
+            newValue: parseInt(event.target.value)
+        }))
+    }
+
     return (
         <tr>
-            <td>{side.constraints[id].displayName}</td>
-            <td>
+            <td>{getDisplayName(id)}</td>
+            <td colSpan={2}>
                 <input 
                     type="number"  
                     value={side.constraints[id].value} 
                     disabled={side.constraints[id].computed}
-                    onChange={(event) => onChangeHandler(side.id, event)}
+                    onChange={(event) => {
+                        onConstraintChanged(event)
+                        updateConstraints(id, side, piece)
+                    }}
                 />
             </td>
             <td>
@@ -43,6 +61,7 @@ export function NumberConstraint({id, side, piece, onChangeHandler}) {
                     onChange={
                         (event) => {
                             onComputedChanged()
+                            updateConstraints(id, side, piece)
                         }
                     }
                 />

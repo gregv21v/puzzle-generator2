@@ -45,10 +45,10 @@ export function Piece({piece}) {
         let path = d3.path();
 
         if(piece.sides.length >= 3) {
-            let radius = piece.constraints.radius
-            if(piece.useSideLength) { // if using side length
+            let radius = piece.constraints.radius.value
+            if(piece.constraints.sideLength && piece.constraints.sideLength.computed) { // if using side length
                 let theta = 360 / piece.sides.length // the angle to subdivide with
-                radius = piece.constraints.sideLength / (2 * Math.tan((theta/2) * (Math.PI / 180)))
+                radius = piece.constraints.sideLength.value / (2 * Math.tan((theta/2) * (Math.PI / 180)))
             } 
 
     
@@ -74,7 +74,21 @@ export function Piece({piece}) {
 
                 switch(side.type) {
                     case "line": 
-                        createPathForLineSide(path, side.constraints, startPoint, endPoint);
+                        createPathForLineSide(path, {
+                            ...side.constraints,
+                            startPoint: {
+                                ...side.startPoint,
+                                value: startPoint
+                            },
+                            endPoint: {
+                                ...side.endPoint,
+                                value: endPoint
+                            },
+                            length: {
+                                ...side.length,
+                                value: piece.constraints.sideLength.value
+                            }
+                        });
                         break;
                     case "arc":
                         createPathForArcSide(path, side.constraints, {x: side.x, y: side.y})
@@ -110,7 +124,7 @@ export function Piece({piece}) {
         <path 
             ref={pathRef} d={createPiecePath().toString()}
             onClick={onClick}
-            transform={"rotate(" + piece.constraints.rotation + ", " + piece.x + ", " + piece.y + ")"}
+            transform={"rotate(" + piece.constraints.rotation.value + ", " + piece.x + ", " + piece.y + ")"}
             fill="red" stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
     )
 }

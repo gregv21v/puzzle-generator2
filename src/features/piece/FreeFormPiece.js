@@ -46,11 +46,11 @@ export function FreeFormPiece({piece}) {
         let path = d3.path();
 
         if(piece.sides.length > 0)
-            path.moveTo(piece.sides[0].start.x, piece.sides[0].start.y)
+            path.moveTo(piece.sides[0].constraints.start.x, piece.sides[0].constraints.start.y)
 
         for (let index = 0; index < piece.sides.length; index++) {
             let side = piece.sides[index];
-            createPathForLineSide(path, side.constraints, side.start, side.end);
+            createPathForLineSide(path, side.constraints);
         }
 
         path.closePath()

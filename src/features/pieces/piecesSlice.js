@@ -24,39 +24,48 @@ const initialState = {
     selected: true,
     color: "blue",
     constraints: {
-        rotation: {type: "number", displayName: "Rotation", value: 0, computed: false},
-        radius: {type: "number", displayName: "Radius", value: 40, computed: true},
-        sideLength: {type: "number", displayName: "Side Length", value: 40, computed: false}
+        rotation: {type: "number", value: 0, computed: false},
+        radius: {type: "number", value: 40, computed: false},
+        sideLength: {type: "number", value: 40, computed: true}
     },
     sides: [
       {
         id: 0, 
         type: "line",
         constraints: {
-          subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
-          tabLength: {type: "number", displayName: "Tab Length", value: 10, computed: false},
-          startIn: {type: "boolean", displayName: "Start In", value: false, computed: false},
-          tabWidth: {type: "number", displayName: "Tab Width", value: 20, computed: false}
+          startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          subdivisions: {type: "number", value: 3, computed: false},
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false},
+          tabWidth: {type: "number", value: 20, computed: false},
+          length: {type: "number", value: 20, computed: false}
         }
       },
       {
         id: 1, 
         type: "line",
         constraints: {
-          subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
-          tabLength: {type: "number", displayName: "Tab Length", value: 10, computed: false},
-          startIn: {type: "boolean", displayName: "Start In", value: false, computed: false},
-          tabWidth: {type: "number", displayName: "Tab Width", value: 20, computed: false}
+          startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          subdivisions: {type: "number", value: 3, computed: false},
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false},
+          tabWidth: {type: "number", value: 20, computed: false},
+          length: {type: "number", value: 20, computed: false}
         }
       },
       {
         id: 2, 
         type: "line",
         constraints: {
-          subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
-          tabLength: {type: "number", displayName: "Tab Length", value: 10, computed: false},
-          startIn: {type: "boolean", displayName: "Start In", value: false, computed: false},
-          tabWidth: {type: "number", displayName: "Tab Width", value: 20, computed: false}
+          startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          subdivisions: {type: "number", value: 3, computed: false},
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false},
+          tabWidth: {type: "number", value: 20, computed: false},
+          length: {type: "number", value: 20, computed: false}
         }
       },
       /*{
@@ -73,10 +82,13 @@ const initialState = {
         id: 3, 
         type: "line",
         constraints: {
+          startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+          endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
           subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
-          tabLength: {type: "number", displayName: "Tab Length", value: 10, computed: false},
-          startIn: {type: "boolean", displayName: "Start In", value: false, computed: false},
-          tabWidth: {type: "number", displayName: "Tab Width", value: 20, computed: false}
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false},
+          tabWidth: {type: "number", value: 20, computed: false},
+          length: {type: "number", value: 20, computed: false}
         }
       }
     ]
@@ -110,12 +122,12 @@ const initialState = {
             id: 0,
             type: "line"
             constraints: {
-              startPoint: {type: "point", displayName: "Start", value: {x: 50, y: 50}, isFixed: true},
-              endPoint: {type: "point", displayName: "End", value: {x: 50, y: 50}, isFixed: true}
-              subdivisions: {type: "number", displayName: "Subdivisions", value: 3, isFixed: true},
-              tabLength: {type: "number", displayName: "Tab Length", value: 10, isFixed: false},
-              startIn: {type: "boolean", displayName: "Start In", value: false, isFixed: false},
-              tabWidth: {type: "number", displayName: "Tab Width", value: 20, isFixed: false}
+              startPoint: {type: "point", displayName: "Start", value: {x: 50, y: 50}, computed: true},
+              endPoint: {type: "point", displayName: "End", value: {x: 50, y: 50}, computed: true}
+              subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
+              tabLength: {type: "number", displayName: "Tab Length", value: 10, computed: false},
+              startIn: {type: "boolean", displayName: "Start In", value: false, computed: false},
+              tabWidth: {type: "number", displayName: "Tab Width", value: 20, computed: false}
             }
         }
     ]

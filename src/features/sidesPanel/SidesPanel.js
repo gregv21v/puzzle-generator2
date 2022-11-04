@@ -2,7 +2,7 @@ import React from 'react';
 import { Panel } from '../panel/Panel';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createPiece, addSide, removeSide, selectPieces } from '../pieces/piecesSlice';
+import { createPiece, addSide, removeSide, selectPieces, toggleSideConstraintComputed, setSideConstraintsValue } from '../pieces/piecesSlice';
 import { NumberConstraint } from '../constraints/NumberConstraint';
 import { BooleanConstraint } from '../constraints/BooleanConstraint';
 import { PointConstraint } from '../constraints/PointConstraint';
@@ -40,7 +40,10 @@ export function SidesPanel({title, piece}) {
                     side: {
                         type: "line",
                         constraints: {
-                            subdivisions: 4, tabLength: 10, startIn: false
+                            subdivisions: {type: "number", value: 3, computed: false},
+                            tabLength: {type: "number", value: 10, computed: false},
+                            startIn: {type: "boolean", value: false, computed: false},
+                            tabWidth: {type: "number", value: 20, computed: false}
                         }
                     }   
                 }))
@@ -50,15 +53,133 @@ export function SidesPanel({title, piece}) {
                     pieceId: piece.id,
                     side: {
                         type: "line",
-                        start: {x: 0, y: 0},
-                        end: {x: 0, y: 0},
                         constraints: {
-                            subdivisions: 4, tabLength: 10, startIn: false
+                            startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+                            endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
+                            subdivisions: {type: "number", value: 3, computed: true},
+                            tabLength: {type: "number", value: 10, computed: false},
+                            startIn: {type: "boolean", value: false, computed: false},
+                            tabWidth: {type: "number", value: 20, computed: false}
                         }
                     }   
                 }))
         }
         
+    }
+
+
+    /**
+     * updateConstraints()
+     * @description updates the constraints of a piece
+     * @param {string} id the id of the constraint
+     * @param {side} side the side of the piece
+     * @param {piece} piece the piece
+     */
+    function updateConstraints(id, side, piece) {
+         /*
+            side => constraints
+            piece => pieceConstraints
+            
+            List of constraints:
+                side.startPoint 
+                side.endPoint
+                side.length
+                side.subdivisions 
+                side.startIn
+                side.tabWidth
+                side.tabLength
+                piece.sideLength
+                piece.radius
+                piece.rotation
+        */
+
+        /**
+         * formulas:
+         * side.subdivisions = side.length / side.tabWidth
+         * side.tabWidth = side.length / side.subdivisions
+         * side.length = side.tabWidth * side.subdivisions
+         */
+
+
+        if(id === "subdivisions") {
+            // compute the subdivisions
+
+            // make sure length isn't computed
+            if(side.constraints.length.computed) {
+                dispatch(toggleSideConstraintComputed({
+                    pieceId: piece.id,
+                    sideId: side.id, 
+                    constraintId: "length"
+                }))
+            }
+
+            // make sure tab width isn't computed
+            if(side.constraints.tabWidth.computed) {
+                dispatch(toggleSideConstraintComputed({
+                    pieceId: piece.id,
+                    sideId: side.id, 
+                    constraintId: "tabWidth"
+                }))
+            }
+
+            if(side.constraints.subdivisions.computed) {
+                dispatch(setSideConstraintsValue({
+                    pieceId: piece.id,
+                    sideId: side.id,
+                    constraintId: id,
+                    newValue: side.constraints.length.value / side.constraints.tabWidth.value
+                }))
+            }
+        } /*else if(id === "length") {
+
+            // make sure length isn't computed
+            if(side.constraints.subdivisions.computed) {
+                dispatch(toggleSideConstraintComputed({
+                    pieceId: piece.id,
+                    sideId: side.id, 
+                    constraintId: "subdivisions"
+                }))
+            }
+
+            // make sure tab width isn't computed
+            if(side.constraints.tabWidth.computed) {
+                dispatch(toggleSideConstraintComputed({
+                    pieceId: piece.id,
+                    sideId: side.id, 
+                    constraintId: "tabWidth"
+                }))
+            }
+
+            if(side.constraints.length.computed) {
+                dispatch(setSideConstraintsValue({
+                    pieceId: piece.id,
+                    sideId: side.id,
+                    constraintId: id,
+                    newValue: side.constraints.length.value / side.constraints.tabWidth.value
+                }))
+            }
+            // compute the tabWidth
+            tabWidth = constraints.length / constraints.subdivisions;
+        } else if(constraints.length && constraints.length.computed) {
+            // compute the length of the side
+            length = constraints.tabWidth * constraints.subdivisions;
+        } else if(constraints.startPoint && constraints.startPoint.computed) {
+            // extend the line starting at the start point
+            let currentLength = dist(constraints.startPoint.value, constraints.endPoint.value);
+            let amountToExtend = currentLength - length;
+            let startPoint = {
+                x: startPoint.x - (endPoint.x - startPoint.x) / currentLength * amountToExtend,
+                y: startPoint.y - (endPoint.y - startPoint.y) / currentLength * amountToExtend,
+            }
+        } else if(constraints.endPoint && constraints.endPoint.computed) {
+            // extend the line starting at the start point
+            let currentLength = dist(constraints.endPoint.value, constraints.endPoint.value);
+            let amountToExtend = currentLength - length;
+            let endPoint = {
+                x: endPoint.x - (endPoint.x - endPoint.x) / currentLength * amountToExtend,
+                y: endPoint.y - (endPoint.y - endPoint.y) / currentLength * amountToExtend,
+            }
+        }*/
     }
 
 
@@ -73,7 +194,7 @@ export function SidesPanel({title, piece}) {
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Property</th>
+                                        <th colSpan={2}>Property</th>
                                         <th>Computed</th>
                                     </tr>
                                 </thead>
@@ -88,9 +209,7 @@ export function SidesPanel({title, piece}) {
                                                             id={key} 
                                                             side={side} 
                                                             piece={piece}
-                                                            onChangeHandler={(sideId, event) => {
-                                                                console.log("Test");
-                                                            }}
+                                                            updateConstraints={updateConstraints}
                                                         >
                                                         </NumberConstraint>
                                                     )
@@ -101,25 +220,18 @@ export function SidesPanel({title, piece}) {
                                                             id={key}
                                                             side={side}
                                                             piece={piece}
-                                                            onChangeHandler={(sideId, event) => {
-                                                                console.log("Boolean Constraint");
-                                                            }}
+                                                            updateConstraints={updateConstraints}
                                                         >
                                                         </BooleanConstraint>
                                                     )
-                                                case "boolean": 
+                                                case "point": 
                                                     return (
                                                         <PointConstraint
                                                             key={key}
                                                             id={key}
                                                             side={side}
                                                             piece={piece}
-                                                            onChangeX={(sideId, event) => {
-                                                                console.log("Boolean Constraint");
-                                                            }}
-                                                            onChangeY={(sideId, event) => {
-                                                                console.log("Boolean Constraint");
-                                                            }}
+                                                            updateConstraints={updateConstraints}
                                                         >
                                                         </PointConstraint>
                                                     )

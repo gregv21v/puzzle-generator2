@@ -7,11 +7,12 @@
  * 
  */
 
-import { toggleSideConstraintComputed } from "../pieces/piecesSlice"
+import { toggleSideConstraintComputed, toggleSideConstraintValue } from "../pieces/piecesSlice"
 import { useDispatch } from 'react-redux';
+import { getDisplayName } from "../util/util";
 
 
- export function BooleanConstraint({id, side, piece, onChangeHandler}) {
+ export function BooleanConstraint({id, side, piece, updateConstraints}) {
 
     const dispatch = useDispatch();
 
@@ -27,15 +28,31 @@ import { useDispatch } from 'react-redux';
         }))
     }
 
+    /**
+     * onConstraintChanged()
+     * @description updates the constraint when the check box changes
+     * @param {Event} event the change event
+     */
+    function onConstraintChanged(event) {
+        dispatch(toggleSideConstraintValue({
+            pieceId: piece.id,
+            sideId: side.id,
+            constraintId: id
+        }))
+    }
+
     return (
         <tr>
-            <td>{side.constraints[id].displayName}</td>
-            <td>
+            <td>{getDisplayName(id)}</td>
+            <td colSpan={2}>
                 <input 
                     type="checkbox"  
                     value={side.constraints[id].value} 
                     disabled={side.constraints[id].computed}
-                    onChange={(event) => onChangeHandler(side.id, event)}
+                    onChange={(event) => {
+                        onConstraintChanged(event)
+                        updateConstraints(id, side, piece)
+                    }}
                 />
             </td>
             <td>
@@ -45,6 +62,7 @@ import { useDispatch } from 'react-redux';
                     onChange={
                         (event) => {
                             onComputedChanged()
+                            updateConstraints(id, side, piece)
                         }
                     }
                 />

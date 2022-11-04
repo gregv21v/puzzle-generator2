@@ -48,33 +48,33 @@ export function rectWithinRect(rect1, rect2) {
  * @param {Point} endPoint the end point of the side
  * @returns an array of Path
  */
- export function createPathForLineSide(path, constraints, startPoint, endPoint) {
+ export function createPathForLineSide(path, constraints) {
 
-    let subdivisions = constraints.subdivisions;
-    if(constraints.useTabWidth) {
-        subdivisions = dist(startPoint, endPoint) / constraints.tabWidth;
-    } 
-    //let points = [];
+    console.log(constraints);
+
+   
+
+        //let points = [];
     //points.push(startPoint)
     
     //console.log("Start Point: " + JSON.stringify(startPoint));
     //console.log("End Point: " + JSON.stringify(constraints.endPoint));
 
-    let deltaX = (endPoint.x - startPoint.x) / subdivisions
-    let deltaY = (endPoint.y - startPoint.y) / subdivisions
-    let line = new Line(startPoint, endPoint)
+    let deltaX = (constraints.endPoint.value.x - constraints.startPoint.value.x) / constraints.subdivisions.value
+    let deltaY = (constraints.endPoint.value.y - constraints.startPoint.value.y) / constraints.subdivisions.value
+    let line = new Line(constraints.startPoint.value, constraints.endPoint.value)
     let perpendicularVector = line.getPerpendicularVector();
     
-    for(let j = 0; j < subdivisions+1; j++) {
+    for(let j = 0; j < constraints.subdivisions.value+1; j++) {
 
         let D1 = {
-            x: (startPoint.x + deltaX * (j-1)) + constraints.tabLength * perpendicularVector.x,
-            y: (startPoint.y + deltaY * (j-1)) + constraints.tabLength * perpendicularVector.y
+            x: (constraints.startPoint.value.x + deltaX * (j-1)) + constraints.tabLength.value * perpendicularVector.x,
+            y: (constraints.startPoint.value.y + deltaY * (j-1)) + constraints.tabLength.value * perpendicularVector.y
         }
 
         let D2 = {
-            x: (startPoint.x + deltaX * j) + constraints.tabLength * perpendicularVector.x,
-            y: (startPoint.y + deltaY * j) + constraints.tabLength * perpendicularVector.y
+            x: (constraints.startPoint.value.x + deltaX * j) + constraints.tabLength * perpendicularVector.x,
+            y: (constraints.startPoint.value.y + deltaY * j) + constraints.tabLength * perpendicularVector.y
         }
 
         if(constraints.startIn) { // output: _-_
@@ -82,32 +82,32 @@ export function rectWithinRect(rect1, rect2) {
                 // outward tab 
                 path.lineTo(D1.x, D1.y)//points.push(D1) // line outward perpendicular to the start point 
                 path.lineTo(D2.x, D2.y)//points.push(D2) // line across
-                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
                 /*points.push({
-                    x: startPoint.x + deltaX * j,
-                    y: startPoint.y + deltaY * j
+                    x: constraints.startPoint.value.x + deltaX * j,
+                    y: constraints.startPoint.value.y + deltaY * j
                 })*/ // line back to the original line
             } else { // inward tab
-                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
                 /*points.push({
-                    x: startPoint.x + deltaX * j,
-                    y: startPoint.y + deltaY * j
+                    x: constraints.startPoint.value.x + deltaX * j,
+                    y: constraints.startPoint.value.y + deltaY * j
                 })*/
             }
         } else { // output: -_-
             if(j % 2 === 1) {
                 path.lineTo(D1.x, D1.y)//points.push(D1) // line outward perpendicular to the start point 
                 path.lineTo(D2.x, D2.y)//points.push(D2) // line across
-                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
                 /*points.push({
-                    x: startPoint.x + deltaX * j,
-                    y: startPoint.y + deltaY * j
+                    x: constraints.startPoint.value.x + deltaX * j,
+                    y: constraints.startPoint.value.y + deltaY * j
                 }) */// line back to the original line
             } else {
-                path.lineTo(startPoint.x + deltaX * j, startPoint.y + deltaY * j)
+                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
                 /*points.push({
-                    x: startPoint.x + deltaX * j,
-                    y: startPoint.y + deltaY * j
+                    x: constraints.startPoint.value.x + deltaX * j,
+                    y: constraints.startPoint.value.y + deltaY * j
                 })*/
             }
         }
@@ -115,7 +115,7 @@ export function rectWithinRect(rect1, rect2) {
         
         
     }
-    path.lineTo(endPoint.x, endPoint.y);
+    path.lineTo(constraints.endPoint.value.x, constraints.endPoint.value.y);
 
     return path;
 }
@@ -211,6 +211,25 @@ export function getPiecesWithinRect(pieces, rect) {
 
     //console.log(ids);
     return ids;
+}
+
+
+
+/**
+ * getDisplayName()
+ * @description gets the display name for the constraint
+ * @param name the name the of the constraint
+ */
+export function getDisplayName(name) {
+    return {
+        tabWidth: "Tab Width", 
+        tabLength: "Tab Length",
+        length: "Length",
+        radius: "Radius",
+        subdivisions: "Subdivisions",
+        startPoint: "Start Point",
+        endPoint: "End Point"
+    }[name]
 }
 
 
