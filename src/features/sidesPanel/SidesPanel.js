@@ -19,8 +19,24 @@ import { PointConstraint } from '../constraints/PointConstraint';
 export function SidesPanel({title, piece}) {
     const dispatch = useDispatch();
     const pieces = useSelector(selectPieces)
-    
-
+    const constraintsTable = {
+        subdivisions: {
+            dependencies: ["length", "tabWidth"],
+            formula: (length, tabWidth) => {
+                console.log("Length: " + length);
+                console.log("TabWidth: " + tabWidth);
+                return length / tabWidth
+            } 
+        },
+        length: {
+            dependencies: ["tabWidth", "subdivisions"],
+            formula: (tabWidth, subdivisions) => {return tabWidth * subdivisions}
+        },
+        tabWidth: {
+            dependencies: ["subdivisions", "length"],
+            formula: (subdivisions, length) => {return length / subdivisions}
+        }
+    }
 
     /**
      * addSideHandler() 
@@ -69,13 +85,34 @@ export function SidesPanel({title, piece}) {
 
 
     /**
-     * updateConstraints()
-     * @description updates the constraints of a piece
-     * @param {string} id the id of the constraint
+     * updateComputed()
+     * @description updates the computed values of the constraints
+     * @param {string} constraintName the name of the constraint
      * @param {side} side the side of the piece
      * @param {piece} piece the piece
      */
-    function updateConstraints(id, side, piece) {
+    function updateComputed(constraintName, side, piece) {
+        // lets start with side.subdivions, side.tabWidth, and side.length
+        // one value has to be computed, and the other two have to be set 
+        for (const dependency of constraintsTable[constraintName].dependencies) {
+            if(side.constraints[dependency].computed) {
+                dispatch(toggleSideConstraintComputed({
+                    pieceId: piece.id,
+                    sideId: side.id, 
+                    constraintId: dependency
+                }))
+            }
+        }
+    }
+
+    /**
+     * updateConstraints()
+     * @description updates the constraints of a piece
+     * @param {string} constraintName the constraintName of the constraint
+     * @param {side} side the side of the piece
+     * @param {piece} piece the piece
+     */
+    function updateConstraints(event, constraintName, side, piece) {
          /*
             side => constraints
             piece => pieceConstraints
@@ -100,37 +137,37 @@ export function SidesPanel({title, piece}) {
          * side.length = side.tabWidth * side.subdivisions
          */
 
+        let newValue = parseInt(event.target.value);
 
-        if(id === "subdivisions") {
-            // compute the subdivisions
+        // lets start with side.subdivions, side.tabWidth, and side.length
+        // one value has to be computed, and the other two have to be set 
+        for (const dependency of constraintsTable[constraintName].dependencies) {
+            
+            if(side.constraints[dependency].computed) {
+                let parameters = [];
 
-            // make sure length isn't computed
-            if(side.constraints.length.computed) {
-                dispatch(toggleSideConstraintComputed({
-                    pieceId: piece.id,
-                    sideId: side.id, 
-                    constraintId: "length"
-                }))
-            }
+                // set parameters
+                for (let i = 0; i < constraintsTable[dependency].dependencies.length; i++) {
+                    const element = constraintsTable[dependency].dependencies[i];
 
-            // make sure tab width isn't computed
-            if(side.constraints.tabWidth.computed) {
-                dispatch(toggleSideConstraintComputed({
-                    pieceId: piece.id,
-                    sideId: side.id, 
-                    constraintId: "tabWidth"
-                }))
-            }
-
-            if(side.constraints.subdivisions.computed) {
+                    if(element === constraintName) {
+                        parameters[i] = newValue;
+                    } else {
+                        parameters[i] = side.constraints[element].value
+                    }
+                } 
+                
                 dispatch(setSideConstraintsValue({
                     pieceId: piece.id,
                     sideId: side.id,
-                    constraintId: id,
-                    newValue: side.constraints.length.value / side.constraints.tabWidth.value
+                    constraintId: dependency,
+                    newValue: constraintsTable[dependency].formula(
+                        ...parameters
+                    )
                 }))
             }
-        } /*else if(id === "length") {
+        }
+        /*else if(id === "length") {
 
             // make sure length isn't computed
             if(side.constraints.subdivisions.computed) {
@@ -210,6 +247,7 @@ export function SidesPanel({title, piece}) {
                                                             side={side} 
                                                             piece={piece}
                                                             updateConstraints={updateConstraints}
+                                                            updateComputed={updateComputed}
                                                         >
                                                         </NumberConstraint>
                                                     )
@@ -221,6 +259,7 @@ export function SidesPanel({title, piece}) {
                                                             side={side}
                                                             piece={piece}
                                                             updateConstraints={updateConstraints}
+                                                            updateComputed={updateComputed}
                                                         >
                                                         </BooleanConstraint>
                                                     )
@@ -232,6 +271,7 @@ export function SidesPanel({title, piece}) {
                                                             side={side}
                                                             piece={piece}
                                                             updateConstraints={updateConstraints}
+                                                            updateComputed={updateComputed}
                                                         >
                                                         </PointConstraint>
                                                     )

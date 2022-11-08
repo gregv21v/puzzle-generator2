@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
-import { createPathForArcSide, createPathForArcToSide, createPathForLineSide } from "../util/util";
+import { createPathForArcSide, createPathForArcToSide, createPathForLineSide } from "../util/draw";
 
 
 

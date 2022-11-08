@@ -10,7 +10,7 @@
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
  
-export function NumberConstraint({id, side, piece, updateConstraints}) {
+export function NumberConstraint({id, side, piece, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -50,18 +50,18 @@ export function NumberConstraint({id, side, piece, updateConstraints}) {
                     disabled={side.constraints[id].computed}
                     onChange={(event) => {
                         onConstraintChanged(event)
-                        updateConstraints(id, side, piece)
+                        updateConstraints(event, id, side, piece)
                     }}
                 />
             </td>
             <td>
                 <input 
                     type="checkbox" 
-                    value={side.constraints[id].computed} 
+                    checked={side.constraints[id].computed} 
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            updateConstraints(id, side, piece)
+                            updateComputed(id, side, piece)
                         }
                     }
                 />

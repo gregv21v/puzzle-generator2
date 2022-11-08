@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 import { getDisplayName } from "../util/util";
 
 
- export function BooleanConstraint({id, side, piece, updateConstraints}) {
+ export function BooleanConstraint({id, side, piece, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -58,11 +58,11 @@ import { getDisplayName } from "../util/util";
             <td>
                 <input 
                     type="checkbox" 
-                    value={side.constraints[id].computed} 
+                    checked={side.constraints[id].computed} 
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            updateConstraints(id, side, piece)
+                            updateComputed(id, side, piece)
                         }
                     }
                 />

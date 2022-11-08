@@ -10,7 +10,7 @@
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
 
- export function PointConstraint({id, side, piece, updateConstraints}) {
+ export function PointConstraint({id, side, piece, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -57,7 +57,7 @@
     return (
         <tr>
             <td>{getDisplayName(id)}</td>
-            <td >
+            <td>
                 x: <input 
                     style={{width: "50px"}} 
                     type="number"  
@@ -85,11 +85,11 @@
             <td>
                 <input 
                     type="checkbox" 
-                    value={side.constraints[id].computed} 
+                    checked={side.constraints[id].computed} 
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            updateConstraints(id, side, piece)
+                            updateComputed(id, side, piece)
                         }
                     }
                 />

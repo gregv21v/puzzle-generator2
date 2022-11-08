@@ -35,11 +35,11 @@ const initialState = {
         constraints: {
           startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
           endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
-          subdivisions: {type: "number", value: 3, computed: false},
-          tabLength: {type: "number", value: 10, computed: false},
-          startIn: {type: "boolean", value: false, computed: false},
+          subdivisions: {type: "number", value: 3, computed: true},
+          length: {type: "number", value: 20, computed: false},
           tabWidth: {type: "number", value: 20, computed: false},
-          length: {type: "number", value: 20, computed: false}
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false}  
         }
       },
       {
@@ -48,11 +48,11 @@ const initialState = {
         constraints: {
           startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
           endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
-          subdivisions: {type: "number", value: 3, computed: false},
-          tabLength: {type: "number", value: 10, computed: false},
-          startIn: {type: "boolean", value: false, computed: false},
+          subdivisions: {type: "number", value: 3, computed: true},
+          length: {type: "number", value: 20, computed: false},
           tabWidth: {type: "number", value: 20, computed: false},
-          length: {type: "number", value: 20, computed: false}
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false}  
         }
       },
       {
@@ -61,11 +61,11 @@ const initialState = {
         constraints: {
           startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
           endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
-          subdivisions: {type: "number", value: 3, computed: false},
-          tabLength: {type: "number", value: 10, computed: false},
-          startIn: {type: "boolean", value: false, computed: false},
+          subdivisions: {type: "number", value: 3, computed: true},
+          length: {type: "number", value: 20, computed: false},
           tabWidth: {type: "number", value: 20, computed: false},
-          length: {type: "number", value: 20, computed: false}
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false}  
         }
       },
       /*{
@@ -84,11 +84,11 @@ const initialState = {
         constraints: {
           startPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
           endPoint: {type: "point", value: {x: 50, y: 50}, computed: true},
-          subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
-          tabLength: {type: "number", value: 10, computed: false},
-          startIn: {type: "boolean", value: false, computed: false},
+          subdivisions: {type: "number", value: 3, computed: true},
+          length: {type: "number", value: 20, computed: false},
           tabWidth: {type: "number", value: 20, computed: false},
-          length: {type: "number", value: 20, computed: false}
+          tabLength: {type: "number", value: 10, computed: false},
+          startIn: {type: "boolean", value: false, computed: false}  
         }
       }
     ]
@@ -385,19 +385,23 @@ export const piecesSlice = createSlice({
     },
 
     /**
-    * setPieceConstraints() 
+    * setPieceConstraintValue() 
     * @description sets the constraints of a specific piece
     * @param pieceId the id of the piece to set the contraints of 
     * @param constraints the new constraints
     */
-    setPieceConstraints: (state, action) => {
+    setPieceConstraintValue: (state, action) => {
       return {
         ...state,
         [action.payload.pieceId]:{
-          ...state[action.payload.pieceId],
-          constraints: Object.assign(
-            {}, state[action.payload.pieceId].constraints, action.payload.constraints
-          )
+          ...state[action.payload.pieceId], // copy the piece
+          constraints: {
+            ...state[action.payload.pieceId].constraints, // copy the constraints
+            [action.payload.constraintId]: {
+              ...state[action.payload.pieceId].constraints[action.payload.constraintId], // copy the constraint
+              value: action.payload.newValue // update the value
+            }
+          }
         }
       }
     },
@@ -604,6 +608,7 @@ export const {
   selectAllPieces, selectPiece,
   deselectAllPieces, deselectPiece,
   movePiece, moveFreePiece,
+  setPieceConstraintValue,
   addPiece,
   removePiece,
   setPieceConstraints,
@@ -611,9 +616,6 @@ export const {
   createCirclePiece,
   removeAllPieces,
   selectPiecesAction,
-  setPieceRadius,
-  pieceUseRadius,
-  pieceUseSideLength
 } = piecesSlice.actions;
 
 export default piecesSlice.reducer;
