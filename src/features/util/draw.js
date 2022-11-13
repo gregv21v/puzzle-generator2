@@ -14,6 +14,8 @@ import Line from "./Line";
  */
  export function createPathForLineSide(path, constraints) {
 
+    console.log(constraints);
+
     let deltaX = (constraints.endPoint.value.x - constraints.startPoint.value.x) / constraints.subdivisions.value
     let deltaY = (constraints.endPoint.value.y - constraints.startPoint.value.y) / constraints.subdivisions.value
     let line = new Line(constraints.startPoint.value, constraints.endPoint.value)
@@ -27,8 +29,8 @@ import Line from "./Line";
         }
 
         let D2 = {
-            x: (constraints.startPoint.value.x + deltaX * j) + constraints.tabLength * perpendicularVector.x,
-            y: (constraints.startPoint.value.y + deltaY * j) + constraints.tabLength * perpendicularVector.y
+            x: (constraints.startPoint.value.x + deltaX * j) + constraints.tabLength.value * perpendicularVector.x,
+            y: (constraints.startPoint.value.y + deltaY * j) + constraints.tabLength.value * perpendicularVector.y
         }
 
         if(constraints.startIn) { // output: _-_

@@ -6,11 +6,11 @@
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
- import { setConstraintValue, setSideConstraintsValue, toggleConstraintComputed, toggleSideConstraintComputed } from "../pieces/piecesSlice"
+ import { setSideConstraintsValue, toggleSideConstraintComputed } from "../pieces/piecesSlice"
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
  
-export function NumberConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
+export function SideNumberConstraint({id, object, piece, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -19,7 +19,11 @@ export function NumberConstraint({path, constraint, parent, updateConstraints, u
      * @description updates the computed value when the checkbox is changed
      */
     function onComputedChanged() {
-        dispatch(toggleConstraintComputed({path}))
+        dispatch(toggleSideConstraintComputed({
+            pieceId: piece.id,
+            sideId: object.id,
+            constraintId: id
+        }))
     }
 
     /**
@@ -28,34 +32,36 @@ export function NumberConstraint({path, constraint, parent, updateConstraints, u
      * @param {Event} event the change event
      */
     function onConstraintChanged(event) {
-        dispatch(setConstraintValue({
-            path,
+        dispatch(setSideConstraintsValue({
+            pieceId: piece.id,
+            sideId: object.id,
+            constraintId: id,
             newValue: parseFloat(event.target.value)
         }))
     }
 
     return (
         <tr>
-            <td style={{fontSize: 10}}>{getDisplayName(path[path.length-1])}:</td>
+            <td style={{fontSize: 10}}>{getDisplayName(id)}:</td>
             <td colSpan={2}>
                 <input 
                     type="number"  
-                    value={constraint.value} 
-                    disabled={constraint.computed}
+                    value={object.constraints[id].value} 
+                    disabled={object.constraints[id].computed}
                     onChange={(event) => {
                         onConstraintChanged(event)
-                        ///updateConstraints(event.target.value, object, piece)
+                        updateConstraints(event, id, object, piece)
                     }}
                 />
             </td>
             <td>
                 <input 
                     type="checkbox" 
-                    checked={constraint.computed} 
+                    checked={object.constraints[id].computed} 
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            ///updateComputed(id, object, piece)
+                            updateComputed(id, object, piece)
                         }
                     }
                 />

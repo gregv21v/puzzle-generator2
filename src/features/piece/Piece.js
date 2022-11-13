@@ -1,9 +1,11 @@
 import * as d3 from "d3"
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
+import { deselectAllPieces, movePiece, moveSideConstraintPoint, selectPiecesAction, setPieceConstraintValue, setSideConstraintsValue } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
 import { createPathForArcSide, createPathForArcToSide, createPathForLineSide } from "../util/draw";
+import { getPolygon } from "../util/geometry";
+import { updatePiecePosition, updatePieceWithPolygon } from "../util/pieceFunctions";
 
 
 
@@ -26,12 +28,14 @@ export function Piece({piece}) {
             .on('drag', function(event) {
                 //dispatch(deselectAllPieces())
                 //dispatch(selectPiece([piece.id]))
-                if(piece.selected)     
-                    dispatch(movePiece({
-                        pieceId: piece.id,
-                        x: event.x,
-                        y: event.y
-                    }))
+
+                
+                if(piece.selected) {
+                    updatePiecePosition(
+                        dispatch, piece,
+                        {x: event.x, y: event.y}
+                    )
+                }
             });
         handleDrag(d3.select(pathRef.current));
     }, [piece])
@@ -45,56 +49,23 @@ export function Piece({piece}) {
         let path = d3.path();
 
         if(piece.sides.length >= 3) {
-            let radius = piece.constraints.radius.value
-            if(piece.constraints.sideLength && piece.constraints.sideLength.computed) { // if using side length
-                let theta = 360 / piece.sides.length // the angle to subdivide with
-                radius = piece.constraints.sideLength.value / (2 * Math.tan((theta/2) * (Math.PI / 180)))
-            } 
-
-    
             for (let index = 0; index < piece.sides.length; index++) {
                 const side = piece.sides[index];
 
-                let angle1 = (index) * (360 / piece.sides.length)
-                let angle2 = (index+1) * (360 / piece.sides.length)
-
-                let startPoint = {
-                    x: piece.x + radius * Math.sin(angle1 * (Math.PI / 180)),
-                    y: piece.y + radius * Math.cos(angle1 * (Math.PI / 180))
-                }
-                
-                let endPoint = {
-                    x: piece.x + radius * Math.sin(angle2 * (Math.PI / 180)),
-                    y: piece.y + radius * Math.cos(angle2 * (Math.PI / 180))
-                }
-
                 if(index === 0) {
-                    path.moveTo(startPoint.x, startPoint.y);
+                    path.moveTo(side.constraints.startPoint.value.x, side.constraints.startPoint.value.y);
                 }
 
                 switch(side.type) {
                     case "line": 
-                        createPathForLineSide(path, {
-                            ...side.constraints,
-                            startPoint: {
-                                ...side.startPoint,
-                                value: startPoint
-                            },
-                            endPoint: {
-                                ...side.endPoint,
-                                value: endPoint
-                            },
-                            length: {
-                                ...side.length,
-                                value: piece.constraints.sideLength.value
-                            }
-                        });
+                        createPathForLineSide(path, side.constraints);
                         break;
                     case "arc":
                         createPathForArcSide(path, side.constraints, {x: side.x, y: side.y})
                         break;
                     case "arcTo":
-                        createPathForArcToSide(path, side.constraints, startPoint, endPoint)
+                        //createPathForArcToSide(path, side.constraints, startPoint, endPoint)
+                        break;
                     default:
                         break;
                 }
@@ -118,13 +89,18 @@ export function Piece({piece}) {
     }
 
 
+    console.log("Piece");
 
 
     return (
         <path 
             ref={pathRef} d={createPiecePath().toString()}
             onClick={onClick}
-            transform={"rotate(" + piece.constraints.rotation.value + ", " + piece.x + ", " + piece.y + ")"}
+            transform={"rotate(" + 
+                piece.constraints.rotation.value + ", " + 
+                piece.constraints.position.value.x + ", " + 
+                piece.constraints.position.value.y + ")"
+            }
             fill="red" stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
     )
 }

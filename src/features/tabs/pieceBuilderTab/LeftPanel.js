@@ -12,7 +12,7 @@ export function LeftPanel({piece}) {
             {
                 (() => {
                     if(piece)
-                        switch(piece.type) {
+                        switch(piece.constraints.type.value) {
                             case "sided": 
                                 return <ConstraintsPanel piece={piece}></ConstraintsPanel>
                             case "circle": 

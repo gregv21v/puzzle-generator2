@@ -6,11 +6,11 @@
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
- import { setConstraintValue, setPieceConstraintValue, toggleConstraintComputed, togglePieceConstraintComputed } from "../pieces/piecesSlice"
+ import { toggleSideConstraintComputed, setSideConstraintsValue } from "../pieces/piecesSlice"
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
 
- export function PointConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
+ export function SidePointConstraint({id, object, piece, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -19,8 +19,10 @@
      * @description updates the computed value when the checkbox is changed
      */
     function onComputedChanged() {
-        dispatch(toggleConstraintComputed({
-            path
+        dispatch(toggleSideConstraintComputed({
+            pieceId: piece.id,
+            sideId: object.id,
+            constraintId: id
         }))
     }
 
@@ -30,9 +32,11 @@
      * @param {Event} event the change event
      */
     function onChangeY(event) {
-        dispatch(setConstraintValue({
-            path,
-            newValue: {x: constraint.value.x, y: parseFloat(event.target.value)}
+        dispatch(setSideConstraintsValue({
+            pieceId: piece.id,
+            sideId: object.id,
+            constraintId: id,
+            newValue: {x: object.constraints[id].value.x, y: parseFloat(event.target.value)}
         }))
     }
 
@@ -42,24 +46,26 @@
      * @param {Event} event the change event
      */
     function onChangeX(event) {
-        dispatch(setConstraintValue({
-            path,
-            newValue: {x: parseFloat(event.target.value), y: constraint.value.y}
+        dispatch(setSideConstraintsValue({
+            pieceId: piece.id,
+            sideId: object.id,
+            constraintId: id,
+            newValue: {x: parseFloat(event.target.value), y: object.constraints[id].value.y}
         }))
     }
 
     return (
         <tr>
-            <td style={{fontSize: 10}}>{getDisplayName(path[path.length-1])}:</td>
+            <td>{getDisplayName(id)}</td>
             <td>
                 x: <input 
                     style={{width: "50px"}} 
                     type="number"  
-                    value={constraint.value.x} 
-                    disabled={constraint.computed}
+                    value={object.constraints[id].value.x} 
+                    disabled={object.constraints[id].computed}
                     onChange={(event) => {
-                        onChangeX(event)
-                        //updateConstraints({x: parseFloat(event.target.value), y: constraint.value.y}, id, 
+                        onChangeY(event)
+                        updateConstraints(id, object, piece)
                     }}
                 />
             </td>
@@ -68,22 +74,22 @@
                 <input 
                     style={{width: "50px"}}
                     type="number"  
-                    value={constraint.value.y} 
-                    disabled={constraint.computed}
+                    value={object.constraints[id].value.y} 
+                    disabled={object.constraints[id].computed}
                     onChange={(event) => {
-                        onChangeY(event)
-                        //updateConstraints({x: constraint.value.x, y: parseFloat(event.target.value)}, id, 
+                        onChangeX(event)
+                        updateConstraints(id, object, piece)
                     }}
                 />
             </td>
             <td>
                 <input 
                     type="checkbox" 
-                    checked={constraint.computed} 
+                    checked={object.constraints[id].computed} 
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            //updateComputed(id, 
+                            updateComputed(id, object, piece)
                         }
                     }
                 />

@@ -2,17 +2,17 @@
  * A number constraint is something that describes a puzzle piece with a single value.
  * 
  * 
- * id is how you identify the constraint
+ * @param {Array} path is the path to the constraint
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
 
-import { toggleSideConstraintComputed, toggleSideConstraintValue } from "../pieces/piecesSlice"
+import { toggleConstraintComputed, toggleConstraintValue, toggleSideConstraintComputed, toggleSideConstraintValue } from "../pieces/piecesSlice"
 import { useDispatch } from 'react-redux';
 import { getDisplayName } from "../util/util";
 
 
- export function BooleanConstraint({id, side, piece, updateConstraints, updateComputed}) {
+export function BooleanConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -21,11 +21,7 @@ import { getDisplayName } from "../util/util";
      * @description updates the computed value when the checkbox is changed
      */
     function onComputedChanged() {
-        dispatch(toggleSideConstraintComputed({
-            pieceId: piece.id,
-            sideId: side.id,
-            constraintId: id
-        }))
+       dispatch(toggleConstraintComputed({path}))
     }
 
     /**
@@ -33,36 +29,32 @@ import { getDisplayName } from "../util/util";
      * @description updates the constraint when the check box changes
      * @param {Event} event the change event
      */
-    function onConstraintChanged(event) {
-        dispatch(toggleSideConstraintValue({
-            pieceId: piece.id,
-            sideId: side.id,
-            constraintId: id
-        }))
+    function onConstraintChanged() {
+        dispatch(toggleConstraintValue({path}))
     }
 
     return (
         <tr>
-            <td>{getDisplayName(id)}</td>
+            <td style={{fontSize: 10}}>{getDisplayName(path[path.length-1])}:</td>
             <td colSpan={2}>
                 <input 
                     type="checkbox"  
-                    value={side.constraints[id].value} 
-                    disabled={side.constraints[id].computed}
+                    value={constraint.value} 
+                    disabled={constraint.computed}
                     onChange={(event) => {
-                        onConstraintChanged(event)
-                        updateConstraints(id, side, piece)
+                        onConstraintChanged()
+                        //updateConstraints(path, constraint, parent)
                     }}
                 />
             </td>
             <td>
                 <input 
                     type="checkbox" 
-                    checked={side.constraints[id].computed} 
+                    checked={constraint.computed} 
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            updateComputed(id, side, piece)
+                            //updateComputed(path, constraint, parent)
                         }
                     }
                 />

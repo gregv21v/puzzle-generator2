@@ -2,10 +2,11 @@ import React from 'react';
 import { Panel } from '../panel/Panel';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createPiece, addSide, removeSide, selectPieces, toggleSideConstraintComputed, setSideConstraintsValue } from '../pieces/piecesSlice';
-import { NumberConstraint } from '../constraints/NumberConstraint';
+import { createPiece, addSide, removeSide, selectPieces, toggleSideConstraintComputed, setSideConstraintsValue, generateLineSide } from '../pieces/piecesSlice';
 import { BooleanConstraint } from '../constraints/BooleanConstraint';
-import { PointConstraint } from '../constraints/PointConstraint';
+import { SideNumberConstraint } from '../constraints/SideNumberConstraint';
+import { SidePointConstraint } from '../constraints/SidePointConstraint';
+import { ConstraintsTable } from '../constraints/ConstraintsTable';
 
 
 /**
@@ -51,18 +52,14 @@ export function SidesPanel({title, piece}) {
 
         switch(piece.type) {
             case "sided": 
+
+
                 dispatch(addSide({
                     pieceId: piece.id,
-                    side: {
-                        type: "line",
-                        constraints: {
-                            subdivisions: {type: "number", value: 3, computed: false},
-                            tabLength: {type: "number", value: 10, computed: false},
-                            startIn: {type: "boolean", value: false, computed: false},
-                            tabWidth: {type: "number", value: 20, computed: false}
-                        }
-                    }   
+                    side: generateLineSide(0) 
                 }))
+
+
                 break;
             case "free":
                 dispatch(addSide({
@@ -220,71 +217,37 @@ export function SidesPanel({title, piece}) {
     }
 
 
+    
+
+    console.log("Sides Panel");
+
+    
     return (
         <Panel title={title}>
             {
-                (piece) ? piece.sides.map(side => {
+                (piece) ? Object.keys(piece.sides).map(key => {
                     return (
-                        <Panel title={side.id} key={side.id}>
+                        <Panel title={key} key={key}>
 
                             <table style={{fontSize: 10}}>
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th colSpan={2}>Property</th>
+                                        <th colSpan={2}>Value</th>
                                         <th>Computed</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {
-                                        Object.keys(side.constraints).map(key => {
-                                            switch(side.constraints[key].type) {
-                                                case "number": 
-                                                    return (
-                                                        <NumberConstraint 
-                                                            key={key} 
-                                                            id={key} 
-                                                            side={side} 
-                                                            piece={piece}
-                                                            updateConstraints={updateConstraints}
-                                                            updateComputed={updateComputed}
-                                                        >
-                                                        </NumberConstraint>
-                                                    )
-                                                case "boolean": 
-                                                    return (
-                                                        <BooleanConstraint
-                                                            key={key}
-                                                            id={key}
-                                                            side={side}
-                                                            piece={piece}
-                                                            updateConstraints={updateConstraints}
-                                                            updateComputed={updateComputed}
-                                                        >
-                                                        </BooleanConstraint>
-                                                    )
-                                                case "point": 
-                                                    return (
-                                                        <PointConstraint
-                                                            key={key}
-                                                            id={key}
-                                                            side={side}
-                                                            piece={piece}
-                                                            updateConstraints={updateConstraints}
-                                                            updateComputed={updateComputed}
-                                                        >
-                                                        </PointConstraint>
-                                                    )
-                                            }
-                                        })
-                                    }
-                                </tbody>
+                                <ConstraintsTable
+                                    root={[piece.id, "sides", key]}
+                                    constraints={piece.sides[key].constraints}
+                                >
+                                </ConstraintsTable>
                             </table>
 
                             <div>
                                 <button onClick={() => dispatch(removeSide({
                                     pieceId: piece.id,
-                                    sideId: side.id
+                                    sideId: key
                                 }))}>-</button>
                             </div>
                         </Panel>

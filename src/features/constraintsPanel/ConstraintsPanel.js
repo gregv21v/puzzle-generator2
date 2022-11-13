@@ -3,172 +3,78 @@
  */
 
 import { useDispatch } from "react-redux"
-import { setPieceConstraintValue, setSideConstraintsValue } from "../pieces/piecesSlice"
-
+import { ConstraintsTable } from "../constraints/ConstraintsTable"
+import { togglePieceConstraintComputed } from "../pieces/piecesSlice"
+import { updatePiece, updatePiecePosition } from "../util/pieceFunctions"
 
 export function ConstraintsPanel({piece}) {
     const dispatch = useDispatch()
 
     /**
-     * updateSides() 
-     * @description updates the sides of the piece 
-     * 
+     * updateConstraints()
+     * @description updates the constraints of a piece
+     * @param {string} constraintName the constraintName of the constraint
+     * @param {object} object the object with the constraints
+     * @param {piece} piece the piece
      */
-    function updateSides() {
-        let radius = piece.constraints.radius.value
-        if(piece.constraints.sideLength && piece.constraints.sideLength.computed) { // if using side length
-            let theta = 360 / piece.sides.length // the angle to subdivide with
-            radius = piece.constraints.sideLength.value / (2 * Math.tan((theta/2) * (Math.PI / 180)))
-        } 
-
-    
-        for (let index = 0; index < piece.sides.length; index++) {
-            const side = piece.sides[index];
-
-            let angle1 = (index) * (360 / piece.sides.length)
-            let angle2 = (index+1) * (360 / piece.sides.length)
-
-            dispatch(setSideConstraintsValue({
-                pieceId: piece.id,
-                sideId: side.id,
-                constraintId: "startPoint",
-                newValue:  {
-                    x: piece.x + radius * Math.sin(angle1 * (Math.PI / 180)),
-                    y: piece.y + radius * Math.cos(angle1 * (Math.PI / 180))
-                }
-            }))
-
-            dispatch(setSideConstraintsValue({
-                pieceId: piece.id,
-                sideId: side.id,
-                constraintId: "endPoint",
-                newValue: {
-                    x: piece.x + radius * Math.sin(angle2 * (Math.PI / 180)),
-                    y: piece.y + radius * Math.cos(angle2 * (Math.PI / 180))
-                }
-            }))
-
-            dispatch(setSideConstraintsValue({
-                pieceId: piece.id,
-                sideId: side.id,
-                constraintId: "length",
-                newValue: piece.constraints.sideLength.value
-            }))
-        }
-
-    }
-
-
-    /**
-     * onChangeRadius()
-     * @description triggered when the radius changes
-     * @param {Event} event the event 
-     */
-    function onChangeRadius(event) {
-        
-        // update the sides of the piece 
-        for (const side of piece.sides) {
-            dispatch(setSideConstraintsValue({
-                pieceId: piece.id,
-                sideId: side.id,
-                constraintId: side
-            }))
-        }
-    }
-
-
-    /**
-     * onChangeSideLength()
-     * @description triggered when the side length changes
-     * @param {Event} event the event 
-     */
-    function onChangeSideLength(event) {
-
-        dispatch(setPieceConstraintValue({
-            pieceId: piece.id,
-            constraintId: "sideLength",
-            newValue: parseFloat(event.target.value)
-        }))
-        
-        // update the sides of the piece 
-        for (const side of piece.sides) {
-            dispatch(setSideConstraintsValue({
-                pieceId: piece.id,
-                sideId: side.id,
-                constraintId: "length",
-                newValue: parseFloat(event.target.value)
-            }))
-        }
-
-        updateSides();
+    function updateConstraints(newValue, constraintName, piece) {         
+        /*if(constraintName !== "position")
+            updatePiece(dispatch, piece, constraintName, newValue);
+        else {
+            updatePiecePosition(dispatch, piece, newValue);
+        }*/
     }
 
     /**
-     * onChangeRotation()
-     * @description triggered when the rotation changes
-     * @param {Event} event the event 
+     * updateConstraints()
+     * @description updates the constraints of a piece
+     * @param {string} constraintName the constraintName of the constraint
+     * @param {object} object the object with the constraints
+     * @param {piece} piece the piece
      */
-     function onChangeRotation(event) {
-        /*dispatch(setPieceConstraints({
-            pieceId: piece.id,
-            constraints: {
-                rotation: parseInt(event.target.value)
-            }
-        }))*/
+    function updateComputed(constraintName, piece) {
+        /*if(constraintName === "sideLength") {
+            // make radius computed
+            if(piece.constraints.radius.computed) {
+                // toggle the piece constraint computed value
+                dispatch(togglePieceConstraintComputed({
+                    pieceId: piece.id,
+                    constraintId: "radius"
+                }))
+            } 
+            // How do you compute the radius from the side length?
+        } else if(constraintName === "radius") {
+            // make side length computed
+            // make sideLength computed
+            if(piece.constraints.sideLength.computed) {
+                // toggle the piece constraint computed value
+                dispatch(togglePieceConstraintComputed({
+                    pieceId: piece.id,
+                    constraintId: "sideLength"
+                }))
+            } 
+        }*/
     }
 
-    /**
-     * onChangeDrawMethod()
-     * @description triggered when you switch from drawing by radius vs drawing by side length
-     * @param {Event} event the event 
-     */
-    function onChangeDrawMethod(event) {
-        console.log("Draw Method Changed");
-
-        
-        /*if(piece.useSideLength)
-            dispatch(pieceUseRadius(piece.id)) 
-        else 
-            dispatch(pieceUseSideLength(piece.id)) */  
-    }
-
-
-
+    console.log("ConstraintsPanel");
     return (
         <div>
-            <form 
-                style={{
-                    textAlign: "left"
-                }}
-            >
-                <label htmlFor="radius">
-                    <input 
-                        type="radio" 
-                        checked={!piece.useSideLength} 
-                        value={"Use Radius"}
-                        onChange={onChangeDrawMethod} 
-                        name="useSideLength"/>
-                    Radius (px): 
-                    <input type="number" onChange={onChangeRadius} value={piece.constraints.radius.value}/>
-                </label> <br/>
-
-                <label htmlFor="sideLength">
-                    <input 
-                        type="radio" 
-                        checked={piece.useSideLength} 
-                        value={"Use Side Length"} 
-                        onChange={onChangeDrawMethod}
-                        name="useSideLength"
-                    />
-                    Side Length (px): 
-                    <input type="number" onChange={onChangeSideLength} value={piece.constraints.sideLength.value}/>
-                </label> <br/>
-            </form>
-            
-            <label htmlFor="rotation">
-                Rotation (degrees): 
-                <input type="number" onChange={onChangeRotation} value={piece.constraints.rotation}/>
-            </label> <br/>
+            <table style={{fontSize: 10}}>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th colSpan={2}>Value</th>
+                        <th>Computed</th>
+                    </tr>
+                </thead>
+                <ConstraintsTable
+                        root={[piece.id]}
+                        constraints={piece.constraints}
+                        updateConstraints={updateConstraints}
+                        updateComputed={updateComputed}
+                >
+                </ConstraintsTable>
+            </table>
         </div>
     )
 }

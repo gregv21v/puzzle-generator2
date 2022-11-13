@@ -9,8 +9,8 @@
  import { setConstraintValue, setPieceConstraintValue, toggleConstraintComputed, togglePieceConstraintComputed } from "../pieces/piecesSlice"
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
-
- export function PointConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
+ 
+export function StringConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -25,54 +25,28 @@
     }
 
     /**
-     * onChangeY
-     * @description updates the y coordinate on change
+     * onConstraintChanged()
+     * @description updates the constraint when the text box changes
      * @param {Event} event the change event
      */
-    function onChangeY(event) {
+    function onConstraintChanged(event) {
         dispatch(setConstraintValue({
             path,
-            newValue: {x: constraint.value.x, y: parseFloat(event.target.value)}
-        }))
-    }
-
-    /**
-     * onChangeX
-     * @description updates the x coordinate on change
-     * @param {Event} event the change event
-     */
-    function onChangeX(event) {
-        dispatch(setConstraintValue({
-            path,
-            newValue: {x: parseFloat(event.target.value), y: constraint.value.y}
+            newValue: event.target.value
         }))
     }
 
     return (
         <tr>
             <td style={{fontSize: 10}}>{getDisplayName(path[path.length-1])}:</td>
-            <td>
-                x: <input 
-                    style={{width: "50px"}} 
-                    type="number"  
-                    value={constraint.value.x} 
-                    disabled={constraint.computed}
-                    onChange={(event) => {
-                        onChangeX(event)
-                        //updateConstraints({x: parseFloat(event.target.value), y: constraint.value.y}, id, 
-                    }}
-                />
-            </td>
-            <td >
-                y: 
+            <td colSpan={2}>
                 <input 
-                    style={{width: "50px"}}
-                    type="number"  
-                    value={constraint.value.y} 
+                    type="text "  
+                    value={constraint.value} 
                     disabled={constraint.computed}
                     onChange={(event) => {
-                        onChangeY(event)
-                        //updateConstraints({x: constraint.value.x, y: parseFloat(event.target.value)}, id, 
+                        onConstraintChanged(event)
+                        //updateConstraints(event.target.value, id, 
                     }}
                 />
             </td>
@@ -83,7 +57,7 @@
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            //updateComputed(id, 
+                           // updateComputed(id, piece)
                         }
                     }
                 />

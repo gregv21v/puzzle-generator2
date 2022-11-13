@@ -90,6 +90,9 @@ export function getDisplayName(name) {
         startPoint: "Start Point",
         endPoint: "End Point",
         startIn: "Start In",
+        rotation: "Rotation",
+        sideLength: "Side Length",
+        type: "Type"
     }[name]
 }
 

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, forwardRef } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { Piece } from "../piece/Piece";
 import * as d3 from "d3"
 import { SelectionBox } from "../selectionBox/SelectionBox";
 import { CirclePiece } from "../piece/CirclePiece";
 import { dist, getPiecesWithinRect } from "../util/util";
-import { addPiece, deselectAllPieces, selectPiecesAction, setSideStart, setSideEnd, addSide } from "../pieces/piecesSlice";
+import { addPiece, deselectAllPieces, selectPiecesAction, setSideStart, setSideEnd, addSide, generateSidedPiece, generateLineSide, generateCirclePiece, generateFreePiece } from "../pieces/piecesSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTool, setTool } from "../tool/toolSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../lastPieceId/lastPieceIdSlice";
@@ -35,19 +35,15 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
             console.log("Close Free Form Piece");
             // close the shape
             let piece = pieces[newPieceId]
-            let side = piece.sides[0];
-
-            console.log(side);
+            let firstSide = piece.sides[0];
 
             dispatch(addSide({
                 pieceId: newPieceId,
-                side: {
-                    start: {x: endPoint[0], y: endPoint[1]},
-                    end: {x: side.start.x, y: side.start.y},
-                    constraints: {
-                        subdivisions: 3, tabLength: 10, startIn: false
-                    }
-                }
+                side: generateLineSide(
+                    0, 
+                    {x: endPoint[0], y: endPoint[1]},
+                    {x: firstSide.constraints.startPoint.value.x, y: firstSide.constraints.startPoint.value.y}
+                )
             }))
 
             setNewPieceId(-1);
@@ -84,28 +80,17 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 setMouseIsDown(true)
                 setSelectionBoxHidden(false)
 
+                // when drawing a free hand piece
                 if(newPieceId === -1 && tool === "FreeHandDraw") {
-                    dispatch(addPiece({
-                        id: lastId + 1,
-                        type: "free",
-                        test: "dfadsf",
-                        selected: true,
-                        constraints: {
-                            tabLength: 10,
-                            tabWidth: 10,
-                            subdivisions: 3
-                        },
-                        sides: [
-                            {
-                                id: 0,
-                                start: {x: startPoint[0], y: startPoint[1]},
-                                end: {x: endPoint[0], y: startPoint[1]},
-                                constraints: {
-                                    subdivisions: 3, tabLength: 10, startIn: false
-                                }
-                            }
-                        ]
-                    }))
+                    let newPiece = generateSidedPiece(lastId+1)
+                    newPiece.sides = [generateLineSide(
+                        0, 
+                        {x: startPoint[0], y: startPoint[1]},
+                        {x: endPoint[0], y: startPoint[1]},
+                        true
+                    )]
+
+                    dispatch(addPiece(newPiece))
 
                     setNewPieceId(lastId + 1)
 
@@ -135,52 +120,26 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
 
                     switch(tool) {
                         case "Circle": 
-                            dispatch(addPiece({
-                                    id: lastId+1,
-                                    type: "circle",
-                                    x: startPoint[0],
-                                    y: startPoint[1],
-                                    color: "blue",
-                                    constraints: {
-                                        radius: dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
-                                    }
-                            }))
+                            dispatch(addPiece(generateCirclePiece(
+                                lastId+1, 
+                                startPoint[0], 
+                                startPoint[1],
+                                dist(
+                                    {x: startPoint[0], y: startPoint[1]}, 
+                                    {x: endPoint[0], y: endPoint[1]}
+                                )
+                            )))
 
                             dispatch(incrementLastPieceId());
                             break;
                         case "Shape":
-                            dispatch(addPiece({
-                                id: lastId+1,
-                                type: "sided",
-                                x: startPoint[0],
-                                y: startPoint[1],
-                                color: "blue",
-                                constraints: {
-                                    rotation: 0,
-                                    sideLength: 0,
-                                    radius: dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
-                                },
-                                sides: [
-                                    {
-                                      id: 0, 
-                                      constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                      }
-                                    },
-                                    {
-                                      id: 1, 
-                                      constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                      }
-                                    },
-                                    {
-                                      id: 2, 
-                                      constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                      }
-                                    }
-                                ]
-                            }))
+                            dispatch(addPiece(generateSidedPiece(
+                                lastId+1, 
+                                "radius", 
+                                dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
+                                3,
+                                startPoint[0], startPoint[1]
+                            )))
 
                             dispatch(incrementLastPieceId());
                             break;
@@ -200,24 +159,20 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             dispatch(setSideEnd({
                                 pieceId: newPieceId,
                                 sideId: selectedSideId,
-                                end: {x: endPoint[0], y: endPoint[1]}
+                                constraintId: "endPoint",
+                                newValue: {x: endPoint[0], y: endPoint[1]}
                             }))
 
                             dispatch(setSideStart({
                                 pieceId: newPieceId,
                                 sideId: selectedSideId,
-                                start: {x: startPoint[0], y: startPoint[1]}
+                                constraintId: "startPoint",
+                                newValue: {x: startPoint[0], y: startPoint[1]}
                             }))
 
                             dispatch(addSide({
                                 pieceId: newPieceId,
-                                side: {
-                                    start: {x: startPoint[0], y: startPoint[1]},
-                                    end: {x: endPoint[0], y: endPoint[1]},
-                                    constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                    }
-                                }
+                                side: generateLineSide(0)
                             }))
 
                             setSelectedSideId(selectedSideId + 1);
@@ -239,16 +194,15 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
         }}>
             {
                 Object.values(pieces).map(piece => {
-
-                    if(piece.type === "sided") {
+                    if(piece.constraints.type.value === "sided") {
                         return (
                             <Piece key={piece.id} piece={piece}></Piece>
                         )
-                    } else if(piece.type === "circle") {
+                    } else if(piece.constraints.type.value === "circle") {
                         return (
                             <CirclePiece key={piece.id} piece={piece}></CirclePiece>
                         )
-                    } else if(piece.type === "free") {
+                    } else if(piece.constraints.type.value === "free") {
                         return (
                             <FreeFormPiece key={piece.id} piece={piece}></FreeFormPiece>
                         )
@@ -260,77 +214,29 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 switch(tool) {
                     case "Shape": 
                         return <Piece
-                            piece={{
-                                id: 0,
-                                type: "sided",
-                                x: startPoint[0],
-                                y: startPoint[1],
-                                color: "blue", 
-                                useSideLength: false,
-                                constraints: {
-                                    rotation: 0,
-                                    sideLength: 40,
-                                    radius: dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
-                                },
-                                sides: [
-                                    {
-                                      id: 0, 
-                                      constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                      }
-                                    },
-                                    {
-                                      id: 1, 
-                                      constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                      }
-                                    },
-                                    {
-                                      id: 2, 
-                                      constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                      }
-                                    }
-                                ]
-                            }}
+                            piece={
+                                generateSidedPiece(
+                                    0, 
+                                    "radius", 
+                                    dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
+                                    3,
+                                    startPoint[0], startPoint[1]
+                                )
+                            }
                         ></Piece>
                     case "Circle":
-                        console.log("Circle tool selected");
                         
-                        console.log(dist(startPoint, endPoint));
-                        return <CirclePiece piece={{
-                            id: lastId+1,
-                            type: "circle",
-                            x: startPoint[0],
-                            y: startPoint[1],
-                            color: "blue",
-                            constraints: {
-                                radius: dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
-                            }
-                        }}> </CirclePiece>
+                        return <CirclePiece piece={
+                            generateCirclePiece(
+                                lastId+1,
+                                
+                                dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
+                            )
+                        }> </CirclePiece>
                     case "Selection": 
                         return <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
                     case "FreeHandDraw": 
-                        console.log("Tool selected");
-                        return <FreeFormPiece piece={{
-                            id: lastId+1,
-                            type: "free",
-                            selected: true,
-                            constraints: {
-                                tabLength: 10,
-                                tabWidth: 10,
-                                subdivisions: 3
-                            },
-                            sides: [
-                                {
-                                    start: {x: startPoint[0], y: startPoint[1]},
-                                    end: {x: endPoint[0], y: endPoint[1]},
-                                    constraints: {
-                                        subdivisions: 3, tabLength: 10, startIn: false
-                                    }
-                                }
-                            ]
-                        }}
+                        return <FreeFormPiece piece={generateFreePiece(lastId + 1)}
                         ></FreeFormPiece>
                     default: 
                         return "Nothing"
