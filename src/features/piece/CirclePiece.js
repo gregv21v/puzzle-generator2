@@ -41,8 +41,8 @@ export function CirclePiece({piece}) {
         let path = d3.path();
 
         path.moveTo(
-            piece.x + (piece.constraints.radius) * Math.cos(0),
-            piece.y + (piece.constraints.radius) * Math.sin(0)
+            piece.constraints.center.value.x + (piece.constraints.radius.value) * Math.cos(0),
+            piece.constraints.center.value.y + (piece.constraints.radius.value) * Math.sin(0)
         )
         let segments = 20
         let angle = (Math.PI * 2) / segments
@@ -51,15 +51,15 @@ export function CirclePiece({piece}) {
         
         for(let i = 0; i < segments; i++) {
             
-            path.arc(piece.x, piece.y, piece.constraints.radius, angle * (i+offset), angle * (i+offset+1))
+            path.arc(piece.constraints.center.value.x, piece.constraints.center.value.y, piece.constraints.radius.value, angle * (i+offset), angle * (i+offset+1))
             path.lineTo(
-                piece.x + (piece.constraints.radius + tabLength) * Math.cos(angle * (i+offset+1)),
-                piece.y + (piece.constraints.radius + tabLength) * Math.sin(angle * (i+offset+1))
+                piece.constraints.center.value.x + (piece.constraints.radius.value + tabLength) * Math.cos(angle * (i+offset+1)),
+                piece.constraints.center.value.y + (piece.constraints.radius.value + tabLength) * Math.sin(angle * (i+offset+1))
             )
-            path.arc(piece.x, piece.y, piece.constraints.radius + tabLength, angle * (i+offset+1), angle * (i+offset+2))
+            path.arc(piece.constraints.center.value.x, piece.constraints.center.value.y, piece.constraints.radius.value + tabLength, angle * (i+offset+1), angle * (i+offset+2))
             path.lineTo(
-                piece.x + (piece.constraints.radius) * Math.cos(angle * (i+offset+2)),
-                piece.y + (piece.constraints.radius) * Math.sin(angle * (i+offset+2))
+                piece.constraints.center.value.x + (piece.constraints.radius.value) * Math.cos(angle * (i+offset+2)),
+                piece.constraints.center.value.y + (piece.constraints.radius.value) * Math.sin(angle * (i+offset+2))
             )
 
             offset += 1;

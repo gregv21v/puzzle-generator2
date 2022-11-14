@@ -75,7 +75,7 @@ export function getPolygon(position, sideCount, constraintName, value) {
         position,
         radius: 0,
         sideLength: 0,
-        sides: []
+        sides: {}
     }
 
     // set the radius and side length
@@ -92,8 +92,10 @@ export function getPolygon(position, sideCount, constraintName, value) {
     for (let index = 0; index < sideCount; index++) {
         let side = getPolygonSidePoints(position, index, sideCount, polygon.radius)
         side.length = polygon.sideLength;
-        polygon.sides.push(side);
+        polygon.sides[Object.keys(polygon.sides).length] = side;
     }
+
+    console.log(polygon);
 
     return polygon;    
 }

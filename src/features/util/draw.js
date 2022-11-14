@@ -14,6 +14,7 @@ import Line from "./Line";
  */
  export function createPathForLineSide(path, constraints) {
 
+    console.log("Constraints: ");
     console.log(constraints);
 
     let deltaX = (constraints.endPoint.value.x - constraints.startPoint.value.x) / constraints.subdivisions.value

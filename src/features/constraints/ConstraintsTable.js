@@ -3,7 +3,8 @@
  */
 
 import { BooleanConstraint } from "./BooleanConstraint"
-import { NumberConstraint } from "./NumberConstraint"
+import { FloatConstraint, NumberConstraint } from "./FloatConstraint"
+import { IntegerConstraint } from "./IntegerConstraint";
 import { PointConstraint } from "./PointConstraint"
 import { StringConstraint } from "./StringConstraint"
 
@@ -12,7 +13,7 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
 
     
     function renderConstraint(name) {
-        console.log("Name");
+        //console.log("Name");
         switch(constraints[name].type) {
             case "string": 
                 return (
@@ -36,17 +37,28 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
                     >
                     </PointConstraint>
                 )   
-            case "number":
+            case "float":
                 return (
-                    <NumberConstraint
+                    <FloatConstraint
                         key={name}
                         path={[...root, name]}
                         constraint={constraints[name]}
                         updateConstraints={updateConstraints}
                         updateComputed={updateComputed}
                     >
-                    </NumberConstraint>
-                )   
+                    </FloatConstraint>
+                )  
+            case "integer":
+                return (
+                    <IntegerConstraint
+                        key={name}
+                        path={[...root, name]}
+                        constraint={constraints[name]}
+                        updateConstraints={updateConstraints}
+                        updateComputed={updateComputed}
+                    >
+                    </IntegerConstraint>
+                )  
             case "boolean": 
                 return (
                     <BooleanConstraint
@@ -61,7 +73,7 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
         }
     }
 
-    console.log(constraints);
+    //console.log(constraints);
 
     return (
         <tbody>

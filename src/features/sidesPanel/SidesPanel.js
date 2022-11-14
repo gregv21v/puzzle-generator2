@@ -2,10 +2,7 @@ import React from 'react';
 import { Panel } from '../panel/Panel';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createPiece, addSide, removeSide, selectPieces, toggleSideConstraintComputed, setSideConstraintsValue, generateLineSide } from '../pieces/piecesSlice';
-import { BooleanConstraint } from '../constraints/BooleanConstraint';
-import { SideNumberConstraint } from '../constraints/SideNumberConstraint';
-import { SidePointConstraint } from '../constraints/SidePointConstraint';
+import { createPiece, addSide, removeSide, selectPieces, toggleSideConstraintComputed, setSideConstraintsValue, generateLineSide, setConstraintValue, toggleConstraintComputed } from '../pieces/piecesSlice';
 import { ConstraintsTable } from '../constraints/ConstraintsTable';
 
 
@@ -36,6 +33,10 @@ export function SidesPanel({title, piece}) {
         tabWidth: {
             dependencies: ["subdivisions", "length"],
             formula: (subdivisions, length) => {return length / subdivisions}
+        },
+        tabLength: {
+            dependencies: [], 
+            formula: () => 0
         }
     }
 
@@ -93,10 +94,8 @@ export function SidesPanel({title, piece}) {
         // one value has to be computed, and the other two have to be set 
         for (const dependency of constraintsTable[constraintName].dependencies) {
             if(side.constraints[dependency].computed) {
-                dispatch(toggleSideConstraintComputed({
-                    pieceId: piece.id,
-                    sideId: side.id, 
-                    constraintId: dependency
+                dispatch(toggleConstraintComputed({
+                    path: [piece.id, "sides", side.id, dependency]
                 }))
             }
         }
@@ -109,7 +108,7 @@ export function SidesPanel({title, piece}) {
      * @param {side} side the side of the piece
      * @param {piece} piece the piece
      */
-    function updateConstraints(event, constraintName, side, piece) {
+    function updateConstraints(constraintName, newValue, side, piece) {
          /*
             side => constraints
             piece => pieceConstraints
@@ -134,7 +133,6 @@ export function SidesPanel({title, piece}) {
          * side.length = side.tabWidth * side.subdivisions
          */
 
-        let newValue = parseInt(event.target.value);
 
         // lets start with side.subdivions, side.tabWidth, and side.length
         // one value has to be computed, and the other two have to be set 
@@ -154,10 +152,8 @@ export function SidesPanel({title, piece}) {
                     }
                 } 
                 
-                dispatch(setSideConstraintsValue({
-                    pieceId: piece.id,
-                    sideId: side.id,
-                    constraintId: dependency,
+                dispatch(setConstraintValue({
+                    path: [piece.id, "sides", side.id, dependency],
                     newValue: constraintsTable[dependency].formula(
                         ...parameters
                     )
@@ -240,6 +236,12 @@ export function SidesPanel({title, piece}) {
                                 <ConstraintsTable
                                     root={[piece.id, "sides", key]}
                                     constraints={piece.sides[key].constraints}
+                                    updateComputed={path => 
+                                        updateComputed(path[path.length-1], piece.sides[key], piece)
+                                    }
+                                    updateConstraints={(path, newValue) => 
+                                        updateConstraints(path[path.length-1], newValue, piece.sides[key], piece)
+                                    }
                                 >
                                 </ConstraintsTable>
                             </table>

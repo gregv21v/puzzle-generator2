@@ -1,11 +1,10 @@
 import * as d3 from "d3"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, movePiece, moveSideConstraintPoint, selectPiecesAction, setPieceConstraintValue, setSideConstraintsValue } from '../pieces/piecesSlice';
+import { deselectAllPieces, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
-import { createPathForArcSide, createPathForArcToSide, createPathForLineSide } from "../util/draw";
-import { getPolygon } from "../util/geometry";
-import { updatePiecePosition, updatePieceWithPolygon } from "../util/pieceFunctions";
+import { createPathForArcSide, createPathForLineSide } from "../util/draw";
+import { updatePiecePosition } from "../util/pieceFunctions";
 
 
 
@@ -46,17 +45,26 @@ export function Piece({piece}) {
      * @returns the path of the piece
      */
     function createPiecePath() {
+        console.log("Create Piece Path: ");
+        console.log(piece);
+
         let path = d3.path();
 
-        if(piece.sides.length >= 3) {
-            for (let index = 0; index < piece.sides.length; index++) {
-                const side = piece.sides[index];
+        if(Object.keys(piece.sides).length >= 3) {
+            let first = true;
+            for (let side of Object.values(piece.sides)) {
 
-                if(index === 0) {
+                if(first) {
                     path.moveTo(side.constraints.startPoint.value.x, side.constraints.startPoint.value.y);
+
+                    console.log(side.constraints.startPoint.value);
+
+                    first = false;
                 }
 
-                switch(side.type) {
+                console.log("Displaying Piece");
+                console.log(side);
+                switch(side.constraints.type.value) {
                     case "line": 
                         createPathForLineSide(path, side.constraints);
                         break;
@@ -73,6 +81,8 @@ export function Piece({piece}) {
 
             path.closePath()
         }
+
+        console.log(path);
 
         return path;  
     }

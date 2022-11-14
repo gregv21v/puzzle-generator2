@@ -21,7 +21,7 @@ import _ from "lodash";
 const initialState = {
   "0": generateSidedPiece(0),
 
-  "1": generateCirclePiece(1),
+  //"1": generateCirclePiece(1),
 
   /*"2": {
     id: 2,
@@ -59,10 +59,10 @@ export function generateLineSide(id, start={x: 0, y: 0}, end={x: 0, y: 0}, lengt
       type: {type: "string", value: "line", computed: true},
       startPoint: {type: "point", value: start, computed: true},
       endPoint: {type: "point", value: end, computed: true},
-      subdivisions: {type: "number", value: 3, computed: true},
-      length: {type: "number", value: length, computed: false},
-      tabWidth: {type: "number", value: 20, computed: false},
-      tabLength: {type: "number", value: 10, computed: false},
+      subdivisions: {type: "integer", value: 3, computed: true},
+      length: {type: "float", value: length, computed: false},
+      tabWidth: {type: "float", value: 20, computed: false},
+      tabLength: {type: "float", value: 10, computed: false},
       startIn: {type: "boolean", value: false, computed: false}  
     }
   }
@@ -80,7 +80,7 @@ export function generateLineSide(id, start={x: 0, y: 0}, end={x: 0, y: 0}, lengt
  * @param {boolean} selected whether the piece is selected or not
  * @returns a new sided piece
  */
-export function generateSidedPiece(id, constraintName="radius", value=40, sideCount=3, x=0, y=0, selected = true) {
+export function generateSidedPiece(id, constraintName="radius", value=40, sideCount=3, x=50, y=50, selected = true) {
   let newPiece = {
     id, 
     selected,
@@ -88,9 +88,9 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     constraints: {
       type: {type: "string", value: "sided", computed: true},
       position: {type: "point", value: {x, y}, computed: true},
-      rotation: {type: "number", value: 0, computed: false},
-      radius: {type: "number", value: 50, computed: false},
-      sideLength: {type: "number", value: 50, computed: false}
+      rotation: {type: "float", value: 0, computed: false},
+      radius: {type: "float", value: 50, computed: false},
+      sideLength: {type: "float", value: 50, computed: false}
     },
     sides: {}
   }
@@ -113,10 +113,25 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     
   }
 
+  console.log(newPiece);
+  console.log(theta);
+
 
   for (let index = 0; index < sideCount; index++) {
-    let angle1 = (index) * (360 / sideCount)
-    let angle2 = (index+1) * (360 / sideCount)
+    let angle1 = (index) * theta
+    let angle2 = (index+1) * theta
+
+    console.log({ // start point
+      x: x + newPiece.constraints.radius.value * Math.sin(angle1 * (Math.PI / 180)),
+      y: y + newPiece.constraints.radius.value * Math.cos(angle1 * (Math.PI / 180))
+    });
+
+    console.log({ // end point
+      x: x + newPiece.constraints.radius.value * Math.sin(angle2 * (Math.PI / 180)),
+      y: y + newPiece.constraints.radius.value * Math.cos(angle2 * (Math.PI / 180))
+    });
+
+    console.log(newPiece.constraints.sideLength.value);
 
     newPiece.sides[index] = generateLineSide(
       index, 
@@ -155,14 +170,14 @@ export function generateFreePiece(id, selected=true) {
 } 
 
 
-export function generateCirclePiece(id, x=0, y=0, radius=50) {
+export function generateCirclePiece(id, x=100, y=100, radius=50) {
   return {
     id,
     color: "blue",
     constraints: {
       type: {type: "string", value: "circle", computed: true},
       center: {type: "point", value: {x, y}, computed: true},
-      radius: {type: "number", value: radius, computed: false},
+      radius: {type: "float", value: radius, computed: false},
     }
   }
 }

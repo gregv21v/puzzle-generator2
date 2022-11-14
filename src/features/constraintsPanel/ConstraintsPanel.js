@@ -4,7 +4,7 @@
 
 import { useDispatch } from "react-redux"
 import { ConstraintsTable } from "../constraints/ConstraintsTable"
-import { togglePieceConstraintComputed } from "../pieces/piecesSlice"
+import { toggleConstraintComputed, togglePieceConstraintComputed } from "../pieces/piecesSlice"
 import { updatePiece, updatePiecePosition } from "../util/pieceFunctions"
 
 export function ConstraintsPanel({piece}) {
@@ -14,15 +14,18 @@ export function ConstraintsPanel({piece}) {
      * updateConstraints()
      * @description updates the constraints of a piece
      * @param {string} constraintName the constraintName of the constraint
-     * @param {object} object the object with the constraints
+     * @param {object} newValue the object with the constraints
      * @param {piece} piece the piece
      */
-    function updateConstraints(newValue, constraintName, piece) {         
-        /*if(constraintName !== "position")
+    function updateConstraints(constraintName, newValue, piece) {         
+        console.log(constraintName);
+        console.log(newValue);
+        console.log(piece);
+        if(constraintName !== "position")
             updatePiece(dispatch, piece, constraintName, newValue);
         else {
             updatePiecePosition(dispatch, piece, newValue);
-        }*/
+        }
     }
 
     /**
@@ -32,14 +35,14 @@ export function ConstraintsPanel({piece}) {
      * @param {object} object the object with the constraints
      * @param {piece} piece the piece
      */
-    function updateComputed(constraintName, piece) {
-        /*if(constraintName === "sideLength") {
+    function updateComputed(path) {
+        let constraintName = path[path.length-1]
+        if(constraintName === "sideLength") {
             // make radius computed
             if(piece.constraints.radius.computed) {
                 // toggle the piece constraint computed value
-                dispatch(togglePieceConstraintComputed({
-                    pieceId: piece.id,
-                    constraintId: "radius"
+                dispatch(toggleConstraintComputed({
+                    path: [piece.id, "radius"]
                 }))
             } 
             // How do you compute the radius from the side length?
@@ -48,15 +51,13 @@ export function ConstraintsPanel({piece}) {
             // make sideLength computed
             if(piece.constraints.sideLength.computed) {
                 // toggle the piece constraint computed value
-                dispatch(togglePieceConstraintComputed({
-                    pieceId: piece.id,
-                    constraintId: "sideLength"
+                dispatch(toggleConstraintComputed({
+                    path: [piece.id, "sideLength"]
                 }))
             } 
-        }*/
+        }
     }
 
-    console.log("ConstraintsPanel");
     return (
         <div>
             <table style={{fontSize: 10}}>
@@ -70,7 +71,11 @@ export function ConstraintsPanel({piece}) {
                 <ConstraintsTable
                         root={[piece.id]}
                         constraints={piece.constraints}
-                        updateConstraints={updateConstraints}
+                        updateConstraints={(path, newValue) => 
+                            updateConstraints(
+                                path[path.length-1], newValue, piece
+                            )
+                        }
                         updateComputed={updateComputed}
                 >
                 </ConstraintsTable>

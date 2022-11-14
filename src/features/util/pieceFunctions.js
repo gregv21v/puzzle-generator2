@@ -1,4 +1,4 @@
-import { setPieceConstraintValue, setSideConstraintsValue } from "../pieces/piecesSlice";
+import { setConstraintValue } from "../pieces/piecesSlice";
 import { getPolygon } from "./geometry";
 
 /**
@@ -10,9 +10,14 @@ import { getPolygon } from "./geometry";
  * @param {string} value the value of the constraint to update the sides with
  */
 export function updatePiece(dispatch, piece, constraintName, value) {
-    // get the new polygon
-    let polygon = getPolygon(piece.constraints.position.value, piece.sides.length, constraintName, value);
+    
 
+    // get the new polygon
+    let polygon = getPolygon(piece.constraints.position.value, Object.values(piece.sides).length, constraintName, value);
+
+    console.log("Polygon: ")
+    console.log(polygon);
+    
     updatePieceWithPolygon(dispatch, piece, polygon);
 }
 
@@ -24,7 +29,7 @@ export function updatePiece(dispatch, piece, constraintName, value) {
  * @param {point} position the new position of the piece
  */
 export function updatePiecePosition(dispatch, piece, position) {
-    let polygon = getPolygon(position, piece.sides.length, "radius", piece.constraints.radius.value)
+    let polygon = getPolygon(position, Object.values(piece.sides).length, "radius", piece.constraints.radius.value)
     updatePieceWithPolygon(dispatch, piece, polygon)
 }
 
@@ -40,22 +45,19 @@ export function updatePieceWithPolygon(dispatch, piece, polygon) {
     // set the constraints of the piece itself
     for (const key of Object.keys(polygon)) {
         if(key !== "sides") {
-            dispatch(setPieceConstraintValue({
-                pieceId: piece.id,
-                constraintId: key, 
+            dispatch(setConstraintValue({
+                path: [piece.id, key],
                 newValue: polygon[key]
             }))
         } 
     }
 
     // set the constraints of the sides of the piece
-    for (let i = 0; i < polygon.sides.length; i++) {
-        for (const key of Object.keys(polygon.sides[i])) {
-            dispatch(setSideConstraintsValue({
-                pieceId: piece.id,
-                sideId: i,
-                constraintId: key,
-                newValue: polygon.sides[i][key]
+    for (const sideKey of Object.keys(polygon.sides)) {
+        for (const constraintKey of Object.keys(polygon.sides[sideKey])) {
+            dispatch(setConstraintValue({
+                path: [piece.id, "sides", sideKey, constraintKey],
+                newValue: polygon.sides[sideKey][constraintKey]
             }))
         }
     }

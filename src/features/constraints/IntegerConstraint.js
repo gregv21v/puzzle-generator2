@@ -6,11 +6,11 @@
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
- import { setConstraintValue, setSideConstraintsValue, toggleConstraintComputed, toggleSideConstraintComputed } from "../pieces/piecesSlice"
+ import { setConstraintValue, toggleConstraintComputed } from "../pieces/piecesSlice"
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
  
-export function NumberConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
+export function IntegerConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -30,7 +30,7 @@ export function NumberConstraint({path, constraint, parent, updateConstraints, u
     function onConstraintChanged(event) {
         dispatch(setConstraintValue({
             path,
-            newValue: parseFloat(event.target.value)
+            newValue: parseInt(event.target.value)
         }))
     }
 
@@ -44,7 +44,9 @@ export function NumberConstraint({path, constraint, parent, updateConstraints, u
                     disabled={constraint.computed}
                     onChange={(event) => {
                         onConstraintChanged(event)
-                        ///updateConstraints(event.target.value, object, piece)
+
+                        // updateConstraints(path, newValue,)
+                        updateConstraints(path, parseInt(event.target.value))
                     }}
                 />
             </td>
@@ -55,7 +57,7 @@ export function NumberConstraint({path, constraint, parent, updateConstraints, u
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            ///updateComputed(id, object, piece)
+                            updateComputed(path)
                         }
                     }
                 />

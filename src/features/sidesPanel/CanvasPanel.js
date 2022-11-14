@@ -188,6 +188,8 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
         return () => document.removeEventListener("keypress", onKeyPress)
     }, [pieces, mouseIsDown, startPoint, endPoint, dispatch, selectedPieceId, newPieceId])
 
+
+    console.log("Canvas Panel");
     return (<div>
         <svg ref={svgRef} width="600" height="600" style={{
             border: "solid black 2px"
