@@ -51,20 +51,61 @@ const initialState = {
   }*/
 };
 
-
+/**
+ * generateLineSide()
+ * @descripition generates a side of type line
+ * @param {integer} id the id of the generated side
+ * @param {point} start the start point of the generated side
+ * @param {point} end the end point of the generated side
+ * @param {float} length the length of the generated side
+ * @returns a new side object
+ */
 export function generateLineSide(id, start={x: 0, y: 0}, end={x: 0, y: 0}, length=20) {
   return {
-    id,
-    constraints: {
-      type: {type: "string", value: "line", computed: true},
-      startPoint: {type: "point", value: start, computed: true},
-      endPoint: {type: "point", value: end, computed: true},
-      subdivisions: {type: "integer", value: 3, computed: true},
-      length: {type: "float", value: length, computed: false},
-      tabWidth: {type: "float", value: 20, computed: false},
-      tabLength: {type: "float", value: 10, computed: false},
-      startIn: {type: "boolean", value: false, computed: false}  
-    }
+    id, constraints: _.merge(
+      generateSideConstraints(),
+      {
+        startPoint: {value: start},
+        endPoint: {value: end},
+        length: {value: length}
+      }
+    )
+  }
+}
+
+/**
+ * generateSideConstraints()
+ * @descripition generates the side constraints
+ * @returns a list of side constraints
+ */
+export function generateSideConstraints() {
+  return {
+    type: {type: "string", value: "line", computed: true},
+    startPoint: {type: "point", value: {x: 0, y: 0}, computed: true},
+    endPoint: {type: "point", value: {x: 0, y: 0}, computed: true},
+    subdivisions: {type: "integer", value: 3, computed: true},
+    length: {type: "float", value: 10, computed: false},
+    tabWidth: {type: "float", value: 20, computed: false},
+    tabLength: {type: "float", value: 10, computed: false},
+    startIn: {type: "boolean", value: false, computed: false}  
+  }
+}
+
+/**
+ * 
+ * @param {integer} id the id of the side
+ * @param {object} constraintValues the values of the constraints
+ * example: {
+ *    type: {value: "line"},
+      startPoint: {value: start},
+      endPoint: {value: end},
+      subdivisions: {value: 3},
+ * }
+ * @returns 
+ */
+export function generateSide(id, constraintValues) {
+  return {
+    id, constraints: _.merge(generateSideConstraints(), constraintValues)
   }
 }
 
@@ -86,11 +127,13 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     selected,
     color: "blue",
     constraints: {
-      type: {type: "string", value: "sided", computed: true},
-      position: {type: "point", value: {x, y}, computed: true},
-      rotation: {type: "float", value: 0, computed: false},
-      radius: {type: "float", value: 50, computed: false},
-      sideLength: {type: "float", value: 50, computed: false}
+      type: {type: "string", value: "sided", enabled: true, computed: true},
+      position: {type: "point", value: {x, y}, enabled: true, computed: true},
+      rotation: {type: "float", value: 0, enabled: true, computed: false},
+      radius: {type: "float", value: 50, enabled: true, computed: false},
+      sideLength: {type: "float", value: 50, enabled: true, computed: false},
+      tabLength: {type: "float", value: 50, enabled: true, computed: false},
+      tabWidth: {type: "float", value: 50, enabled: true, computed: false},
     },
     sides: {}
   }
@@ -153,7 +196,7 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
 /**
  * generateFreePiece()
  * @description generates a free draw piece
- * @param {id} id the id of the free piece
+ * @param {integer} id the id of the free piece
  * @param {boolean} selected whether the piece is selected or not
  * @returns a free draw piece
  */
@@ -169,7 +212,15 @@ export function generateFreePiece(id, selected=true) {
   }
 } 
 
-
+/**
+ * generateCirclePiece()
+ * @description generates a circle piece
+ * @param {integer} id the id of the circle piece
+ * @param {float} x the x coordinate of the piece
+ * @param {float} y the y coordinate of the piece
+ * @param {float} radius the radius of the circle piece
+ * @returns 
+ */
 export function generateCirclePiece(id, x=100, y=100, radius=50) {
   return {
     id,
@@ -181,36 +232,6 @@ export function generateCirclePiece(id, x=100, y=100, radius=50) {
     }
   }
 }
-
-
-/**
- * mergeConstraints()
- * @descripition merge two lists of constraints
- * @param {object} constraints1 the first list of constraints
- * @param {object} constraints2 the second list of constraints
- */
-export function mergeConstraints(constraints1, constraints2) {
-  
-}
-
-/**
- * updateConstraints()
- * @descripition updates an original list of constraints with new values. The new list of constraints
- *  does not need to specify all the needed values. The orignal does
- * @param {object} original the original list of constraints
- * @param {object} newValues the new values list of constraints
- */
-export function updateConstraints(original, newValues) {
-  let newConstraints = {...original};
-  for (const key of Object.keys(newValues)) {
-    newConstraints[key] = {
-      ...newConstraints[key],
-      ...newValues[key]
-    }
-  }
-  return newConstraints;
-}
-
 
 
 export const piecesSlice = createSlice({
@@ -561,10 +582,10 @@ export const piecesSlice = createSlice({
         ...state,
         [action.payload.pieceId]:{
           ...state[action.payload.pieceId],
-          sides: [
-            ...state[action.payload.pieceId].sides, 
-            {...action.payload.side, id: state[action.payload.pieceId].sides.length }
-          ] 
+          sides: {
+            ...state[action.payload.pieceId].sides,
+            [action.payload.side.id]: action.payload.side
+          }
         }
       }
     },
@@ -576,11 +597,14 @@ export const piecesSlice = createSlice({
      * @param sideId the id of the side to remove from the piece
      */
     removeSide: (state, action) => {
+      let newSides = {...current(state)[action.payload.pieceId].sides}
+      delete newSides[action.payload.sideId]
+
       return {
         ...state,
         [action.payload.pieceId]:{
           ...state[action.payload.pieceId],
-          sides: state[action.payload.pieceId].sides.filter(side => side.id !== action.payload.sideId)
+          sides: newSides
         }
       }
     },

@@ -27,8 +27,8 @@ export function getPointOnPolygon(centerPoint, radius, angle) {
 export function getPolygonSidePoints(position, index, sideCount, radius) {
     let theta = 360 / sideCount;
     return {
-        startPoint: getPointOnPolygon(position, radius, index * theta),
-        endPoint: getPointOnPolygon(position, radius, (index+1) * theta),
+        startPoint: {value: getPointOnPolygon(position, radius, index * theta)},
+        endPoint: {value: getPointOnPolygon(position, radius, (index+1) * theta)},
     }
 }
 
@@ -72,26 +72,26 @@ export function getPolygonRadius(sideCount, sideLength) {
 export function getPolygon(position, sideCount, constraintName, value) {
     // create a new polygon object
     let polygon = {
-        position,
-        radius: 0,
-        sideLength: 0,
+        position: {value: position},
+        radius: {value: 0},
+        sideLength: {value: 0},
         sides: {}
     }
 
     // set the radius and side length
     if(constraintName === "radius") {
-        polygon.radius = value
-        polygon.sideLength = getPolygonSideLength(sideCount, value)
+        polygon.radius.value = value
+        polygon.sideLength.value = getPolygonSideLength(sideCount, value)
     } else if(constraintName === "sideLength") {
         // update 
-        polygon.sideLength = value
-        polygon.radius = getPolygonRadius(sideCount, value)
+        polygon.sideLength.value = value
+        polygon.radius.value = getPolygonRadius(sideCount, value)
     }
 
     // set the side constraints
     for (let index = 0; index < sideCount; index++) {
-        let side = getPolygonSidePoints(position, index, sideCount, polygon.radius)
-        side.length = polygon.sideLength;
+        let side = getPolygonSidePoints(position, index, sideCount, polygon.radius.value)
+        side.length = {value: polygon.sideLength.value}
         polygon.sides[Object.keys(polygon.sides).length] = side;
     }
 

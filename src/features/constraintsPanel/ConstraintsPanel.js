@@ -4,7 +4,7 @@
 
 import { useDispatch } from "react-redux"
 import { ConstraintsTable } from "../constraints/ConstraintsTable"
-import { toggleConstraintComputed, togglePieceConstraintComputed } from "../pieces/piecesSlice"
+import { setConstraintValue, toggleConstraintComputed } from "../pieces/piecesSlice"
 import { updatePiece, updatePiecePosition } from "../util/pieceFunctions"
 
 export function ConstraintsPanel({piece}) {
@@ -18,13 +18,15 @@ export function ConstraintsPanel({piece}) {
      * @param {piece} piece the piece
      */
     function updateConstraints(constraintName, newValue, piece) {         
-        console.log(constraintName);
-        console.log(newValue);
-        console.log(piece);
-        if(constraintName !== "position")
+        if(constraintName === "radius" || constraintName === "sideLength")
             updatePiece(dispatch, piece, constraintName, newValue);
-        else {
+        else if(constraintName === "position") {
             updatePiecePosition(dispatch, piece, newValue);
+        } else if(constraintName === "rotation") {
+            dispatch(setConstraintValue({
+                path: [piece.id, "rotation"],
+                newValue: newValue
+            }))
         }
     }
 

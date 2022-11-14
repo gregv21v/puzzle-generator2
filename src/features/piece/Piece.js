@@ -25,10 +25,6 @@ export function Piece({piece}) {
         
         const handleDrag = d3.drag()
             .on('drag', function(event) {
-                //dispatch(deselectAllPieces())
-                //dispatch(selectPiece([piece.id]))
-
-                
                 if(piece.selected) {
                     updatePiecePosition(
                         dispatch, piece,
@@ -45,9 +41,6 @@ export function Piece({piece}) {
      * @returns the path of the piece
      */
     function createPiecePath() {
-        console.log("Create Piece Path: ");
-        console.log(piece);
-
         let path = d3.path();
 
         if(Object.keys(piece.sides).length >= 3) {
@@ -56,9 +49,6 @@ export function Piece({piece}) {
 
                 if(first) {
                     path.moveTo(side.constraints.startPoint.value.x, side.constraints.startPoint.value.y);
-
-                    console.log(side.constraints.startPoint.value);
-
                     first = false;
                 }
 
@@ -82,7 +72,6 @@ export function Piece({piece}) {
             path.closePath()
         }
 
-        console.log(path);
 
         return path;  
     }

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Panel } from '../panel/Panel';
 import { useDispatch, useSelector } from 'react-redux';
-
-import { createPiece, addSide, removeSide, selectPieces, toggleSideConstraintComputed, setSideConstraintsValue, generateLineSide, setConstraintValue, toggleConstraintComputed } from '../pieces/piecesSlice';
+import { createPiece, addSide, removeSide, selectPieces, setConstraintValue, toggleConstraintComputed } from '../pieces/piecesSlice';
 import { ConstraintsTable } from '../constraints/ConstraintsTable';
+import { updatePieceWithPolygon } from '../util/pieceFunctions';
+import { getPolygon } from '../util/geometry';
 
 
 /**
@@ -51,15 +52,21 @@ export function SidesPanel({title, piece}) {
             dispatch(createPiece())
         }
 
-        switch(piece.type) {
+        switch(piece.constraints.type.value) {
             case "sided": 
 
+                let polygon = getPolygon(
+                    piece.constraints.position.value,
+                    Object.keys(piece.sides).length + 1,
+                    "radius", piece.constraints.radius.value
+                ) 
 
-                dispatch(addSide({
-                    pieceId: piece.id,
-                    side: generateLineSide(0) 
-                }))
+                console.log(polygon);
 
+                updatePieceWithPolygon(
+                    dispatch, piece,
+                    polygon
+                )
 
                 break;
             case "free":

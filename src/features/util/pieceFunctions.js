@@ -1,4 +1,4 @@
-import { setConstraintValue } from "../pieces/piecesSlice";
+import { addSide, generateSide, setConstraintValue } from "../pieces/piecesSlice";
 import { getPolygon } from "./geometry";
 
 /**
@@ -47,17 +47,27 @@ export function updatePieceWithPolygon(dispatch, piece, polygon) {
         if(key !== "sides") {
             dispatch(setConstraintValue({
                 path: [piece.id, key],
-                newValue: polygon[key]
+                newValue: polygon[key].value
             }))
         } 
     }
 
     // set the constraints of the sides of the piece
     for (const sideKey of Object.keys(polygon.sides)) {
-        for (const constraintKey of Object.keys(polygon.sides[sideKey])) {
-            dispatch(setConstraintValue({
-                path: [piece.id, "sides", sideKey, constraintKey],
-                newValue: polygon.sides[sideKey][constraintKey]
+
+        // if the side does not exist add it
+        if(piece.sides[sideKey]) {
+            // update the constraints of the side 
+            for (const constraintKey of Object.keys(polygon.sides[sideKey])) {
+                dispatch(setConstraintValue({
+                    path: [piece.id, "sides", sideKey, constraintKey],
+                    newValue: polygon.sides[sideKey][constraintKey].value
+                }))
+            }
+        } else {
+            dispatch(addSide({
+                pieceId: piece.id,
+                side: generateSide(sideKey, polygon.sides[sideKey])
             }))
         }
     }
