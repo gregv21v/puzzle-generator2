@@ -1,6 +1,3 @@
-import Line from "./Line"
-
-
 /**
  * dist()
  * @description finds the distance between a start and end point
@@ -92,7 +89,8 @@ export function getDisplayName(name) {
         startIn: "Start In",
         rotation: "Rotation",
         sideLength: "Side Length",
-        type: "Type"
+        type: "Type",
+        center: "Center"
     }[name]
 }
 

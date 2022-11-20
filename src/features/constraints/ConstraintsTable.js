@@ -3,13 +3,23 @@
  */
 
 import { BooleanConstraint } from "./BooleanConstraint"
-import { FloatConstraint, NumberConstraint } from "./FloatConstraint"
+import { FloatConstraint } from "./FloatConstraint"
 import { IntegerConstraint } from "./IntegerConstraint";
+import { OptionConstraint } from "./OptionConstraint";
 import { PointConstraint } from "./PointConstraint"
 import { StringConstraint } from "./StringConstraint"
 
 
 export function ConstraintsTable({root, constraints, updateConstraints, updateComputed}) {
+
+
+    let optionTypes = {
+        "shape" : [
+            {label: "Free", value: "free"},
+            {label: "Circle", value: "circle"},
+            {label: "Sided", value: "sided"}
+        ]
+    }
 
     
     function renderConstraint(name) {
@@ -70,19 +80,41 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
                     >
                     </BooleanConstraint>
                 )  
+            case "option": 
+                return (
+                    <OptionConstraint
+                        key={name}
+                        path={[...root, name]}
+                        constraint={constraints[name]}
+                        options={optionTypes[constraints[name].optionType]}
+                        updateConstraints={updateConstraints}
+                        updateComputed={updateComputed}
+                    >
+                    </OptionConstraint>
+                ) 
         }
     }
 
     //console.log(constraints);
 
     return (
-        <tbody>
-            {
-                Object.keys(constraints).map(name => {
-                    return renderConstraint(name);
-                })
-            }
-        </tbody>
+        <table style={{fontSize: 10}}>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th colSpan={2}>Value</th>
+                    <th>Computed</th>
+                    <th>Enabled</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    Object.keys(constraints).map(name => {
+                        return renderConstraint(name);
+                    })
+                }
+            </tbody>
+        </table>
     )
 
 }

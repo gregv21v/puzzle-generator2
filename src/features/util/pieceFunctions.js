@@ -10,10 +10,9 @@ import { getPolygon } from "./geometry";
  * @param {string} value the value of the constraint to update the sides with
  */
 export function updatePiece(dispatch, piece, constraintName, value) {
-    
 
     // get the new polygon
-    let polygon = getPolygon(piece.constraints.position.value, Object.values(piece.sides).length, constraintName, value);
+    let polygon = getPolygon(Object.values(piece.sides).length, constraintName, value);
 
     console.log("Polygon: ")
     console.log(polygon);
@@ -28,8 +27,8 @@ export function updatePiece(dispatch, piece, constraintName, value) {
  * @param {Piece} piece the piece to update
  * @param {point} position the new position of the piece
  */
-export function updatePiecePosition(dispatch, piece, position) {
-    let polygon = getPolygon(position, Object.values(piece.sides).length, "radius", piece.constraints.radius.value)
+export function updatePiecePosition(dispatch, piece) {
+    let polygon = getPolygon(Object.values(piece.sides).length, "radius", piece.constraints.radius.value)
     updatePieceWithPolygon(dispatch, piece, polygon)
 }
 

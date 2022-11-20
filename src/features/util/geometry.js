@@ -7,10 +7,10 @@ import { dist } from "./util";
  * @param {number} radius the radius of the polygon
  * @param {number} angle the angle on the polygon
  */
-export function getPointOnPolygon(centerPoint, radius, angle) {
+export function getPointOnPolygon(radius, angle) {
     return {
-        x: centerPoint.x + radius * Math.sin(angle * (Math.PI / 180)),
-        y: centerPoint.y + radius * Math.cos(angle * (Math.PI / 180))
+        x: radius * Math.sin(angle * (Math.PI / 180)),
+        y: radius * Math.cos(angle * (Math.PI / 180))
     }
 }
 
@@ -24,11 +24,11 @@ export function getPointOnPolygon(centerPoint, radius, angle) {
  * @param {number} sideCount the number of sides on the polygon
  * @param {number} radius the radius of the polygon
  */
-export function getPolygonSidePoints(position, index, sideCount, radius) {
+export function getPolygonSidePoints(index, sideCount, radius) {
     let theta = 360 / sideCount;
     return {
-        startPoint: {value: getPointOnPolygon(position, radius, index * theta)},
-        endPoint: {value: getPointOnPolygon(position, radius, (index+1) * theta)},
+        startPoint: {value: getPointOnPolygon(radius, index * theta)},
+        endPoint: {value: getPointOnPolygon(radius, (index+1) * theta)},
     }
 }
 
@@ -41,8 +41,8 @@ export function getPolygonSidePoints(position, index, sideCount, radius) {
  */
 export function getPolygonSideLength(sideCount, radius) {
     return dist(
-        getPointOnPolygon({x: 0, y: 0}, radius, 0),
-        getPointOnPolygon({x: 0, y: 0}, radius, 360 / sideCount)
+        getPointOnPolygon(radius, 0),
+        getPointOnPolygon(radius, 360 / sideCount)
     )
 }
 
@@ -63,16 +63,14 @@ export function getPolygonRadius(sideCount, sideLength) {
 /**
  * getPolygon()
  * @description gets a polygon given certain parameters
- * @param {point} position the position of the polygon
  * @param {number} sideCount the number of sides on the polygon
  * @param {string} constraintName the name of the constraint to use to determine how the polygon is generated
  * @param {number} value the value of the constraint
  * @returns a polygon
  */
-export function getPolygon(position, sideCount, constraintName, value) {
+export function getPolygon(sideCount, constraintName, value) {
     // create a new polygon object
     let polygon = {
-        position: {value: position},
         radius: {value: 0},
         sideLength: {value: 0},
         sides: {}
@@ -90,12 +88,11 @@ export function getPolygon(position, sideCount, constraintName, value) {
 
     // set the side constraints
     for (let index = 0; index < sideCount; index++) {
-        let side = getPolygonSidePoints(position, index, sideCount, polygon.radius.value)
+        let side = getPolygonSidePoints(index, sideCount, polygon.radius.value)
         side.length = {value: polygon.sideLength.value}
         polygon.sides[Object.keys(polygon.sides).length] = side;
     }
 
-    console.log(polygon);
 
     return polygon;    
 }

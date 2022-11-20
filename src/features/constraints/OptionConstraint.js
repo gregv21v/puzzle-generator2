@@ -2,15 +2,17 @@
  * A number constraint is something that describes a puzzle piece with a single value.
  * 
  * 
- * id is how you identify the constraint
+ * @param {Array} path is the path to the constraint
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
- import { setConstraintValue, toggleConstraintComputed, toggleConstraintEnabled } from "../pieces/piecesSlice"
- import { useDispatch } from 'react-redux';
- import { getDisplayName } from "../util/util";
- 
-export function FloatConstraint({path, constraint, parent, updateConstraints, updateComputed}) {
+
+import { toggleConstraintComputed, toggleConstraintValue, toggleConstraintEnabled, setConstraintValue } from "../pieces/piecesSlice"
+import { useDispatch } from 'react-redux';
+import { getDisplayName } from "../util/util";
+
+
+export function OptionConstraint({path, constraint, options, parent, updateConstraints, updateComputed}) {
 
     const dispatch = useDispatch();
 
@@ -19,7 +21,7 @@ export function FloatConstraint({path, constraint, parent, updateConstraints, up
      * @description updates the computed value when the checkbox is changed
      */
     function onComputedChanged() {
-        dispatch(toggleConstraintComputed({path}))
+       dispatch(toggleConstraintComputed({path}))
     }
 
     /**
@@ -34,13 +36,13 @@ export function FloatConstraint({path, constraint, parent, updateConstraints, up
 
     /**
      * onConstraintChanged()
-     * @description updates the constraint when the text box changes
+     * @description updates the constraint when the check box changes
      * @param {Event} event the change event
      */
     function onConstraintChanged(event) {
         dispatch(setConstraintValue({
             path,
-            newValue: parseFloat(event.target.value)
+            newValue: event.target.value
         }))
     }
 
@@ -48,17 +50,16 @@ export function FloatConstraint({path, constraint, parent, updateConstraints, up
         <tr>
             <td style={{fontSize: 10}}>{getDisplayName(path[path.length-1])}:</td>
             <td colSpan={2}>
-                <input 
-                    type="number"  
-                    value={constraint.value} 
-                    disabled={constraint.computed || !constraint.enabled}
-                    onChange={(event) => {
-                        onConstraintChanged(event)
-
-                        // updateConstraints(path, newValue,)
-                        updateConstraints(path, parseFloat(event.target.value))
-                    }}
-                />
+                <select disabled={!constraint.enabled} value={constraint.value} onChange={ (event) => {
+                    onConstraintChanged(event)
+                    updateConstraints(path, event.target.value, constraint.value)
+                }}>
+                    {
+                        options.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                        ))
+                    }
+                </select>
             </td>
             <td>
                 <input 
@@ -68,7 +69,7 @@ export function FloatConstraint({path, constraint, parent, updateConstraints, up
                     onChange={
                         (event) => {
                             onComputedChanged()
-                            updateComputed(path)
+                            //updateComputed(path, constraint, parent)
                         }
                     }
                 />

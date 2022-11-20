@@ -32,7 +32,6 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
 
         if(newPieceId !== -1) {
 
-            console.log("Close Free Form Piece");
             // close the shape
             let piece = pieces[newPieceId]
             let firstSide = piece.sides[0];
@@ -189,62 +188,65 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     }, [pieces, mouseIsDown, startPoint, endPoint, dispatch, selectedPieceId, newPieceId])
 
 
-    console.log("Canvas Panel");
+    /**
+     * renderPieces()
+     * @description renders the current pieces
+     * @returns returns a rendering of the pieces
+     */
+    function renderPieces() {
+        return Object.values(pieces).map(piece => {
+            if(piece.constraints.type.value === "sided") {
+                return (
+                    <Piece key={piece.id} piece={piece}></Piece>
+                )
+            } else if(piece.constraints.type.value === "circle") {
+                return (
+                    <CirclePiece key={piece.id} piece={piece}></CirclePiece>
+                )
+            } 
+        })
+    }
+
+    /**
+     * renderCurrent()
+     * @description renders the current thing
+     * @returns the jsx for the current thing being drawn
+     */
+    function renderCurrent() {
+        switch(tool) {
+            case "Shape": 
+                return <Piece
+                    piece={
+                        generateSidedPiece(
+                            0, 
+                            "radius", 
+                            dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
+                            3,
+                            startPoint[0], startPoint[1]
+                        )
+                    }
+                ></Piece>
+            case "Circle":
+                return <CirclePiece piece={
+                    generateCirclePiece(
+                        lastId+1,
+                        
+                        dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
+                    )
+                }> </CirclePiece>
+            case "Selection": 
+                return <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
+            default: 
+                return "Nothing"
+        }
+    }
+
     return (<div>
         <svg ref={svgRef} width="600" height="600" style={{
             border: "solid black 2px"
         }}>
-            {
-                Object.values(pieces).map(piece => {
-                    if(piece.constraints.type.value === "sided") {
-                        return (
-                            <Piece key={piece.id} piece={piece}></Piece>
-                        )
-                    } else if(piece.constraints.type.value === "circle") {
-                        return (
-                            <CirclePiece key={piece.id} piece={piece}></CirclePiece>
-                        )
-                    } else if(piece.constraints.type.value === "free") {
-                        return (
-                            <FreeFormPiece key={piece.id} piece={piece}></FreeFormPiece>
-                        )
-                    }
-                })
-            }
-        {
-            (() => {
-                switch(tool) {
-                    case "Shape": 
-                        return <Piece
-                            piece={
-                                generateSidedPiece(
-                                    0, 
-                                    "radius", 
-                                    dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
-                                    3,
-                                    startPoint[0], startPoint[1]
-                                )
-                            }
-                        ></Piece>
-                    case "Circle":
-                        
-                        return <CirclePiece piece={
-                            generateCirclePiece(
-                                lastId+1,
-                                
-                                dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
-                            )
-                        }> </CirclePiece>
-                    case "Selection": 
-                        return <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
-                    case "FreeHandDraw": 
-                        return <FreeFormPiece piece={generateFreePiece(lastId + 1)}
-                        ></FreeFormPiece>
-                    default: 
-                        return "Nothing"
-                }
-            })()
-        }
+            {renderPieces()}
+            {renderCurrent()}
         </svg>
     </div>)    
 })

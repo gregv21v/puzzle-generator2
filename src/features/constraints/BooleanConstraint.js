@@ -7,7 +7,7 @@
  * 
  */
 
-import { toggleConstraintComputed, toggleConstraintValue, toggleSideConstraintComputed, toggleSideConstraintValue } from "../pieces/piecesSlice"
+import { toggleConstraintComputed, toggleConstraintValue, toggleConstraintEnabled } from "../pieces/piecesSlice"
 import { useDispatch } from 'react-redux';
 import { getDisplayName } from "../util/util";
 
@@ -22,6 +22,16 @@ export function BooleanConstraint({path, constraint, parent, updateConstraints, 
      */
     function onComputedChanged() {
        dispatch(toggleConstraintComputed({path}))
+    }
+
+    /**
+     * onEnabledChanged() 
+     * @description updates the constraint when enabled is changed
+     */
+    function onEnabledChanged() {
+        dispatch(toggleConstraintEnabled({
+            path
+        }))
     }
 
     /**
@@ -40,7 +50,7 @@ export function BooleanConstraint({path, constraint, parent, updateConstraints, 
                 <input 
                     type="checkbox"  
                     value={constraint.value} 
-                    disabled={constraint.computed}
+                    disabled={constraint.computed || !constraint.enabled}
                     onChange={(event) => {
                         onConstraintChanged()
                         //updateConstraints(path, constraint, parent)
@@ -51,9 +61,23 @@ export function BooleanConstraint({path, constraint, parent, updateConstraints, 
                 <input 
                     type="checkbox" 
                     checked={constraint.computed} 
+                    disabled={!constraint.enabled}
                     onChange={
                         (event) => {
                             onComputedChanged()
+                            //updateComputed(path, constraint, parent)
+                        }
+                    }
+                />
+            </td>
+
+            <td>
+                <input 
+                    type="checkbox" 
+                    checked={!constraint.enabled} 
+                    onChange={
+                        (event) => {
+                            onEnabledChanged()
                             //updateComputed(path, constraint, parent)
                         }
                     }

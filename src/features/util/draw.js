@@ -4,6 +4,20 @@
 
 import Line from "./Line";
 
+
+/**
+ * getGlobalCoordinate()
+ * @description get the global position of a given point on a piece
+ * @param {Piece} piece the piece that the point is on
+ * @param {Point} point the point to get the global coordinate of 
+ */
+export function getGlobalCoordinate(piece, point) {
+    return {
+        x: piece.constraints.center.value.x + point.x,
+        y: piece.constraints.center.value.y + point.y
+    }
+}
+
 /**
  * createPathForLineSide()    
  * @description creates the Path for a side of the piece
@@ -12,59 +26,59 @@ import Line from "./Line";
  * @param {Point} endPoint the end point of the side
  * @returns an array of Path
  */
- export function createPathForLineSide(path, constraints) {
+export function createPathForLineSide(path, piece, constraints, endPoint) {
 
-    console.log("Constraints: ");
-    console.log(constraints);
+    let start = getGlobalCoordinate(piece, constraints.startPoint.value)
+    let end = getGlobalCoordinate(piece, endPoint)
 
-    let deltaX = (constraints.endPoint.value.x - constraints.startPoint.value.x) / constraints.subdivisions.value
-    let deltaY = (constraints.endPoint.value.y - constraints.startPoint.value.y) / constraints.subdivisions.value
-    let line = new Line(constraints.startPoint.value, constraints.endPoint.value)
+    let deltaX = (end.x - start.x) / constraints.subdivisions.value
+    let deltaY = (end.y - start.y) / constraints.subdivisions.value
+    let line = new Line(start, end)
     let perpendicularVector = line.getPerpendicularVector();
     
     for(let j = 0; j < constraints.subdivisions.value+1; j++) {
 
         let D1 = {
-            x: (constraints.startPoint.value.x + deltaX * (j-1)) + constraints.tabLength.value * perpendicularVector.x,
-            y: (constraints.startPoint.value.y + deltaY * (j-1)) + constraints.tabLength.value * perpendicularVector.y
+            x: (start.x + deltaX * (j-1)) + constraints.tabLength.value * perpendicularVector.x,
+            y: (start.y + deltaY * (j-1)) + constraints.tabLength.value * perpendicularVector.y
         }
 
         let D2 = {
-            x: (constraints.startPoint.value.x + deltaX * j) + constraints.tabLength.value * perpendicularVector.x,
-            y: (constraints.startPoint.value.y + deltaY * j) + constraints.tabLength.value * perpendicularVector.y
+            x: (start.x + deltaX * j) + constraints.tabLength.value * perpendicularVector.x,
+            y: (start.y + deltaY * j) + constraints.tabLength.value * perpendicularVector.y
         }
 
-        if(constraints.startIn) { // output: _-_
+        if(constraints.startIn.value) { // output: _-_
             if(j % 2 === 0 && j > 0) {
                 // outward tab 
                 path.lineTo(D1.x, D1.y)//points.push(D1) // line outward perpendicular to the start point 
                 path.lineTo(D2.x, D2.y)//points.push(D2) // line across
-                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
+                path.lineTo(start.x + deltaX * j, start.y + deltaY * j)
                 /*points.push({
-                    x: constraints.startPoint.value.x + deltaX * j,
-                    y: constraints.startPoint.value.y + deltaY * j
+                    x: start.x + deltaX * j,
+                    y: start.y + deltaY * j
                 })*/ // line back to the original line
             } else { // inward tab
-                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
+                path.lineTo(start.x + deltaX * j, start.y + deltaY * j)
                 /*points.push({
-                    x: constraints.startPoint.value.x + deltaX * j,
-                    y: constraints.startPoint.value.y + deltaY * j
+                    x: start.x + deltaX * j,
+                    y: start.y + deltaY * j
                 })*/
             }
         } else { // output: -_-
             if(j % 2 === 1) {
                 path.lineTo(D1.x, D1.y)//points.push(D1) // line outward perpendicular to the start point 
                 path.lineTo(D2.x, D2.y)//points.push(D2) // line across
-                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
+                path.lineTo(start.x + deltaX * j, start.y + deltaY * j)
                 /*points.push({
-                    x: constraints.startPoint.value.x + deltaX * j,
-                    y: constraints.startPoint.value.y + deltaY * j
+                    x: start.x + deltaX * j,
+                    y: start.y + deltaY * j
                 }) */// line back to the original line
             } else {
-                path.lineTo(constraints.startPoint.value.x + deltaX * j, constraints.startPoint.value.y + deltaY * j)
+                path.lineTo(start.x + deltaX * j, start.y + deltaY * j)
                 /*points.push({
-                    x: constraints.startPoint.value.x + deltaX * j,
-                    y: constraints.startPoint.value.y + deltaY * j
+                    x: start.x + deltaX * j,
+                    y: start.y + deltaY * j
                 })*/
             }
         }
@@ -72,7 +86,7 @@ import Line from "./Line";
         
         
     }
-    path.lineTo(constraints.endPoint.value.x, constraints.endPoint.value.y);
+    path.lineTo(end.x, end.y);
 
     return path;
 }

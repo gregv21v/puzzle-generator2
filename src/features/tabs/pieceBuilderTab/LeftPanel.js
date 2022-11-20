@@ -14,9 +14,9 @@ export function LeftPanel({piece}) {
                     if(piece)
                         switch(piece.constraints.type.value) {
                             case "sided": 
+                            case "circle":
+                            case "free":
                                 return <ConstraintsPanel piece={piece}></ConstraintsPanel>
-                            case "circle": 
-                                return <p>Circle</p>
                             default: 
                                 return <div></div>
                         }

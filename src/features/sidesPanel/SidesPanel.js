@@ -5,6 +5,7 @@ import { createPiece, addSide, removeSide, selectPieces, setConstraintValue, tog
 import { ConstraintsTable } from '../constraints/ConstraintsTable';
 import { updatePieceWithPolygon } from '../util/pieceFunctions';
 import { getPolygon } from '../util/geometry';
+import { dist } from '../util/util';
 
 
 /**
@@ -28,8 +29,8 @@ export function SidesPanel({title, piece}) {
             } 
         },
         length: {
-            dependencies: ["tabWidth", "subdivisions"],
-            formula: (tabWidth, subdivisions) => {return tabWidth * subdivisions}
+            dependencies: ["tabWidth", "subdivisions", "startPoint"],
+            formula: (tabWidth, subdivisions, startPoint, endPoint) => {return tabWidth * subdivisions}
         },
         tabWidth: {
             dependencies: ["subdivisions", "length"],
@@ -38,8 +39,33 @@ export function SidesPanel({title, piece}) {
         tabLength: {
             dependencies: [], 
             formula: () => 0
+        },
+        startPoint: {
+            dependencies: ["startPoint", "endPoint", "length"],
+            formula: (startPoint, endPoint, length) => {
+                let currentLength = dist(startPoint, endPoint);
+                let amountToExtend = currentLength - length;
+                return {
+                    x: startPoint.x + (endPoint.x - startPoint.x) / currentLength * amountToExtend,
+                    y: startPoint.y + (endPoint.y - startPoint.y) / currentLength * amountToExtend,
+                }
+            }
+        },
+        endPoint: {
+            dependencies: ["startPoint", "endPoint", "length", "subdivisions", "tabWidth"],
+            formula: (startPoint, endPoint, length) => {
+                // extend the line starting at the start point
+                let currentLength = dist(startPoint, endPoint);
+                let amountToExtend = currentLength - length;
+                return endPoint;
+                return {
+                    x: endPoint.x + (endPoint.x - startPoint.x) / currentLength * amountToExtend,
+                    y: endPoint.y + (endPoint.y - startPoint.y) / currentLength * amountToExtend,
+                }
+            }
         }
     }
+ 
 
     /**
      * addSideHandler() 
@@ -56,12 +82,9 @@ export function SidesPanel({title, piece}) {
             case "sided": 
 
                 let polygon = getPolygon(
-                    piece.constraints.position.value,
                     Object.keys(piece.sides).length + 1,
                     "radius", piece.constraints.radius.value
                 ) 
-
-                console.log(polygon);
 
                 updatePieceWithPolygon(
                     dispatch, piece,
@@ -158,6 +181,8 @@ export function SidesPanel({title, piece}) {
                         parameters[i] = side.constraints[element].value
                     }
                 } 
+
+                console.log(constraintsTable[dependency].formula(...parameters));
                 
                 dispatch(setConstraintValue({
                     path: [piece.id, "sides", side.id, dependency],
@@ -232,26 +257,17 @@ export function SidesPanel({title, piece}) {
                     return (
                         <Panel title={key} key={key}>
 
-                            <table style={{fontSize: 10}}>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th colSpan={2}>Value</th>
-                                        <th>Computed</th>
-                                    </tr>
-                                </thead>
-                                <ConstraintsTable
-                                    root={[piece.id, "sides", key]}
-                                    constraints={piece.sides[key].constraints}
-                                    updateComputed={path => 
-                                        updateComputed(path[path.length-1], piece.sides[key], piece)
-                                    }
-                                    updateConstraints={(path, newValue) => 
-                                        updateConstraints(path[path.length-1], newValue, piece.sides[key], piece)
-                                    }
-                                >
-                                </ConstraintsTable>
-                            </table>
+                            <ConstraintsTable
+                                root={[piece.id, "sides", key]}
+                                constraints={piece.sides[key].constraints}
+                                updateComputed={path => 
+                                    updateComputed(path[path.length-1], piece.sides[key], piece)
+                                }
+                                updateConstraints={(path, newValue) => 
+                                    updateConstraints(path[path.length-1], newValue, piece.sides[key], piece)
+                                }
+                            >
+                            </ConstraintsTable>
 
                             <div>
                                 <button onClick={() => dispatch(removeSide({

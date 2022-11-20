@@ -1,10 +1,9 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, selectPiecesAction } from '../pieces/piecesSlice';
+import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
-import { createPathForArcSide, createPathForLineSide } from "../util/draw";
-import { updatePiecePosition } from "../util/pieceFunctions";
+import { createPathForArcSide, createPathForLineSide, getGlobalCoordinate } from "../util/draw";
 
 
 
@@ -22,18 +21,42 @@ export function Piece({piece}) {
      * Implements the ability to drag pieces around the canvas
      */
     useEffect(() => {    
-        
         const handleDrag = d3.drag()
             .on('drag', function(event) {
                 if(piece.selected) {
-                    updatePiecePosition(
-                        dispatch, piece,
-                        {x: event.x, y: event.y}
-                    )
+                    dispatch(movePiece({
+                        pieceId: piece.id,
+                        x: event.x,
+                        y: event.y
+                    }))
                 }
             });
         handleDrag(d3.select(pathRef.current));
     }, [piece])
+
+
+    /** 
+     * createPieceSide() 
+     * @description creates the side of the piece
+     */
+    function createPieceSide(path, piece, current, next) {
+        if(current && next) {
+            switch(current.constraints.type.value) {
+                case "line": 
+                    createPathForLineSide(path, piece, current.constraints, next.constraints.startPoint.value);
+                    break;
+                case "arc":
+                    createPathForArcSide(path, piece, current.constraints, {x: current.x, y: current.y})
+                    break;
+                case "arcTo":
+                    //createPathForArcToSide(path, side.constraints, startPoint, endPoint)
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+    }
 
     /**
      * createPiecePath() 
@@ -44,30 +67,35 @@ export function Piece({piece}) {
         let path = d3.path();
 
         if(Object.keys(piece.sides).length >= 3) {
-            let first = true;
+            let current = null,
+                next = null,
+                first = null,
+                i = 0;
+
+            
+            
             for (let side of Object.values(piece.sides)) {
+                // first side 
+                if(i == 0) {
+                    let start = getGlobalCoordinate(piece, side.constraints.startPoint.value)
+                    path.moveTo(start.x, start.y);
+                    next = side;
+                    first = side;
+                // in the middle
+                } else if(i > 0) {
+                    current = next;
+                    next = side;
+                } 
 
-                if(first) {
-                    path.moveTo(side.constraints.startPoint.value.x, side.constraints.startPoint.value.y);
-                    first = false;
-                }
-
-                console.log("Displaying Piece");
-                console.log(side);
-                switch(side.constraints.type.value) {
-                    case "line": 
-                        createPathForLineSide(path, side.constraints);
-                        break;
-                    case "arc":
-                        createPathForArcSide(path, side.constraints, {x: side.x, y: side.y})
-                        break;
-                    case "arcTo":
-                        //createPathForArcToSide(path, side.constraints, startPoint, endPoint)
-                        break;
-                    default:
-                        break;
-                }
+                createPieceSide(path, piece, current, next);
+                i++;
             }
+
+            // current equals the first one 
+            current = next;
+            next = first;
+
+            createPieceSide(path, piece, current, next);
 
             path.closePath()
         }
@@ -87,18 +115,15 @@ export function Piece({piece}) {
         dispatch(setSelectedPieceId(piece.id))
     }
 
-
-    console.log("Piece");
-
-
+    // renders the piece
     return (
         <path 
             ref={pathRef} d={createPiecePath().toString()}
             onClick={onClick}
             transform={"rotate(" + 
                 piece.constraints.rotation.value + ", " + 
-                piece.constraints.position.value.x + ", " + 
-                piece.constraints.position.value.y + ")"
+                piece.constraints.center.value.x + ", " + 
+                piece.constraints.center.value.y + ")"
             }
             fill="red" stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
     )

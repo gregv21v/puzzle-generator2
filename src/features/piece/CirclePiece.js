@@ -1,7 +1,7 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
+import { deselectAllPieces, moveCirclePiece, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
 
 
@@ -23,7 +23,7 @@ export function CirclePiece({piece}) {
                 //dispatch(deselectAllPieces())
                 //dispatch(selectPiece([piece.id]))
                 if(piece.selected)     
-                    dispatch(movePiece({
+                    dispatch(moveCirclePiece({
                         pieceId: piece.id,
                         x: event.x,
                         y: event.y
@@ -53,10 +53,10 @@ export function CirclePiece({piece}) {
             
             path.arc(piece.constraints.center.value.x, piece.constraints.center.value.y, piece.constraints.radius.value, angle * (i+offset), angle * (i+offset+1))
             path.lineTo(
-                piece.constraints.center.value.x + (piece.constraints.radius.value + tabLength) * Math.cos(angle * (i+offset+1)),
-                piece.constraints.center.value.y + (piece.constraints.radius.value + tabLength) * Math.sin(angle * (i+offset+1))
+                piece.constraints.center.value.x + (piece.constraints.radius.value + piece.constraints.tabLength.value) * Math.cos(angle * (i+offset+1)),
+                piece.constraints.center.value.y + (piece.constraints.radius.value + piece.constraints.tabLength.value) * Math.sin(angle * (i+offset+1))
             )
-            path.arc(piece.constraints.center.value.x, piece.constraints.center.value.y, piece.constraints.radius.value + tabLength, angle * (i+offset+1), angle * (i+offset+2))
+            path.arc(piece.constraints.center.value.x, piece.constraints.center.value.y, piece.constraints.radius.value + piece.constraints.tabLength.value, angle * (i+offset+1), angle * (i+offset+2))
             path.lineTo(
                 piece.constraints.center.value.x + (piece.constraints.radius.value) * Math.cos(angle * (i+offset+2)),
                 piece.constraints.center.value.y + (piece.constraints.radius.value) * Math.sin(angle * (i+offset+2))
@@ -80,9 +80,7 @@ export function CirclePiece({piece}) {
         dispatch(setSelectedPieceId(piece.id))
     }
 
-
-    console.log(piece);
-
+    
     return (
         <path 
             ref={pathRef} d={createPiecePath().toString()}

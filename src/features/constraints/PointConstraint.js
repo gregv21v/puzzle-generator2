@@ -6,7 +6,7 @@
  * computed determines if the value for the constraint is computed from other values.
  * 
  */
- import { setConstraintValue, setPieceConstraintValue, toggleConstraintComputed, togglePieceConstraintComputed } from "../pieces/piecesSlice"
+ import { setConstraintValue, toggleConstraintComputed, toggleConstraintEnabled } from "../pieces/piecesSlice"
  import { useDispatch } from 'react-redux';
  import { getDisplayName } from "../util/util";
 
@@ -20,6 +20,16 @@
      */
     function onComputedChanged() {
         dispatch(toggleConstraintComputed({
+            path
+        }))
+    }
+
+    /**
+     * onEnabledChanged() 
+     * @description updates the constraint when enabled is changed
+     */
+    function onEnabledChanged() {
+        dispatch(toggleConstraintEnabled({
             path
         }))
     }
@@ -56,7 +66,7 @@
                     style={{width: "50px"}} 
                     type="number"  
                     value={constraint.value.x} 
-                    disabled={constraint.computed}
+                    disabled={constraint.computed || !constraint.enabled}
                     onChange={(event) => {
                         onChangeX(event)
                         //updateConstraints({x: parseFloat(event.target.value), y: constraint.value.y}, id, 
@@ -69,7 +79,7 @@
                     style={{width: "50px"}}
                     type="number"  
                     value={constraint.value.y} 
-                    disabled={constraint.computed}
+                    disabled={constraint.computed || !constraint.enabled}
                     onChange={(event) => {
                         onChangeY(event)
                         //updateConstraints({x: constraint.value.x, y: parseFloat(event.target.value)}, id, 
@@ -80,10 +90,24 @@
                 <input 
                     type="checkbox" 
                     checked={constraint.computed} 
+                    disabled={!constraint.enabled}
                     onChange={
                         (event) => {
                             onComputedChanged()
                             //updateComputed(id, 
+                        }
+                    }
+                />
+            </td>
+
+            <td>
+                <input 
+                    type="checkbox" 
+                    checked={!constraint.enabled} 
+                    onChange={
+                        (event) => {
+                            onEnabledChanged()
+                            //updateComputed(path, constraint, parent)
                         }
                     }
                 />

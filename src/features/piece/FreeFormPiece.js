@@ -1,7 +1,7 @@
 import * as d3 from "d3"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, moveFreePiece, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
+import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
 import { createPathForLineSide } from "../util/draw";
 
@@ -9,6 +9,7 @@ import { createPathForLineSide } from "../util/draw";
 
 /**
  * Piece
+ * @depricated
  * @description Creates the piece component.
  * @param {Props} props the props of the component
  * @returns an object the describes the rendering of the component
@@ -24,14 +25,11 @@ export function FreeFormPiece({piece}) {
           
         const handleDrag = d3.drag()
             .on('drag', function(event) {
-                console.log(event);
-                //dispatch(deselectAllPieces())
-                    //dispatch(selectPiece([piece.id]))
                 if(piece.selected) 
-                    dispatch(moveFreePiece({
+                    dispatch(movePiece({
                         pieceId: piece.id,
-                        dx: event.dx,
-                        dy: event.dy
+                        x: event.dx,
+                        y: event.dy
                     }))
             });
         handleDrag(d3.select(pathRef.current));
@@ -45,15 +43,32 @@ export function FreeFormPiece({piece}) {
     function createPiecePath() {
         let path = d3.path();
 
-        if(piece.sides.length > 0)
-            path.moveTo(piece.sides[0].constraints.start.x, piece.sides[0].constraints.start.y)
+        if(Object.keys(piece.sides).length >= 3) {
+            let first = true;
+            for (let side of Object.values(piece.sides)) {
 
-        for (let index = 0; index < piece.sides.length; index++) {
-            let side = piece.sides[index];
-            createPathForLineSide(path, side.constraints);
+                if(first) {
+                    path.moveTo(side.constraints.startPoint.value.x, side.constraints.startPoint.value.y);
+                    first = false;
+                }
+
+                switch(side.constraints.type.value) {
+                    case "line": 
+                        createPathForLineSide(path, side.constraints);
+                        break;
+                    case "arc":
+                        //createPathForArcSide(path, side.constraints, {x: side.x, y: side.y})
+                        break;
+                    case "arcTo":
+                        //createPathForArcToSide(path, side.constraints, startPoint, endPoint)
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            path.closePath()
         }
-
-        path.closePath()
 
         return path;  
     }

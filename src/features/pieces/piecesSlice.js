@@ -21,7 +21,7 @@ import _ from "lodash";
 const initialState = {
   "0": generateSidedPiece(0),
 
-  //"1": generateCirclePiece(1),
+  "1": generateCirclePiece(1),
 
   /*"2": {
     id: 2,
@@ -60,13 +60,12 @@ const initialState = {
  * @param {float} length the length of the generated side
  * @returns a new side object
  */
-export function generateLineSide(id, start={x: 0, y: 0}, end={x: 0, y: 0}, length=20) {
+export function generateLineSide(id, start={x: 0, y: 0}, length=20) {
   return {
     id, constraints: _.merge(
       generateSideConstraints(),
       {
         startPoint: {value: start},
-        endPoint: {value: end},
         length: {value: length}
       }
     )
@@ -80,14 +79,13 @@ export function generateLineSide(id, start={x: 0, y: 0}, end={x: 0, y: 0}, lengt
  */
 export function generateSideConstraints() {
   return {
-    type: {type: "string", value: "line", computed: true},
-    startPoint: {type: "point", value: {x: 0, y: 0}, computed: true},
-    endPoint: {type: "point", value: {x: 0, y: 0}, computed: true},
-    subdivisions: {type: "integer", value: 3, computed: true},
-    length: {type: "float", value: 10, computed: false},
-    tabWidth: {type: "float", value: 20, computed: false},
-    tabLength: {type: "float", value: 10, computed: false},
-    startIn: {type: "boolean", value: false, computed: false}  
+    type: {type: "string", value: "line", enabled: true, computed: true},
+    startPoint: {type: "point", value: {x: 0, y: 0}, enabled: true, computed: true},
+    subdivisions: {type: "integer", value: 3, enabled: true, computed: true},
+    length: {type: "float", value: 10, enabled: true, computed: false},
+    tabWidth: {type: "float", value: 20, enabled: true, computed: false},
+    tabLength: {type: "float", value: 10, enabled: true, computed: false},
+    startIn: {type: "boolean", value: false, enabled: true, computed: false}  
   }
 }
 
@@ -127,9 +125,9 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     selected,
     color: "blue",
     constraints: {
-      type: {type: "string", value: "sided", enabled: true, computed: true},
-      position: {type: "point", value: {x, y}, enabled: true, computed: true},
-      rotation: {type: "float", value: 0, enabled: true, computed: false},
+      type: {type: "option", optionType: "shape", value: "sided", enabled: false, computed: true},
+      center: {type: "point", value: {x, y}, enabled: true, computed: true},
+      rotation: {type: "float", value: 45, enabled: true, computed: false},
       radius: {type: "float", value: 50, enabled: true, computed: false},
       sideLength: {type: "float", value: 50, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
@@ -144,8 +142,8 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     newPiece.constraints.sideLength.computed = true 
     newPiece.constraints.radius.value = value
     newPiece.constraints.sideLength.value = dist(
-        getPointOnPolygon({x, y}, value, 0),
-        getPointOnPolygon({x, y}, value, theta)
+        getPointOnPolygon(value, 0),
+        getPointOnPolygon(value, theta)
     )
 
   } else if(constraintName === "sideLength") {
@@ -156,41 +154,29 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     
   }
 
-  console.log(newPiece);
-  console.log(theta);
-
-
   for (let index = 0; index < sideCount; index++) {
     let angle1 = (index) * theta
     let angle2 = (index+1) * theta
 
-    console.log({ // start point
-      x: x + newPiece.constraints.radius.value * Math.sin(angle1 * (Math.PI / 180)),
-      y: y + newPiece.constraints.radius.value * Math.cos(angle1 * (Math.PI / 180))
-    });
-
-    console.log({ // end point
-      x: x + newPiece.constraints.radius.value * Math.sin(angle2 * (Math.PI / 180)),
-      y: y + newPiece.constraints.radius.value * Math.cos(angle2 * (Math.PI / 180))
-    });
-
-    console.log(newPiece.constraints.sideLength.value);
-
     newPiece.sides[index] = generateLineSide(
       index, 
       { // start point
-        x: x + newPiece.constraints.radius.value * Math.sin(angle1 * (Math.PI / 180)),
-        y: y + newPiece.constraints.radius.value * Math.cos(angle1 * (Math.PI / 180))
+        x: newPiece.constraints.radius.value * Math.sin(angle1 * (Math.PI / 180)),
+        y: newPiece.constraints.radius.value * Math.cos(angle1 * (Math.PI / 180))
       },
       { // end point
-        x: x + newPiece.constraints.radius.value * Math.sin(angle2 * (Math.PI / 180)),
-        y: y + newPiece.constraints.radius.value * Math.cos(angle2 * (Math.PI / 180))
+        x: newPiece.constraints.radius.value * Math.sin(angle2 * (Math.PI / 180)),
+        y: newPiece.constraints.radius.value * Math.cos(angle2 * (Math.PI / 180))
       },
       newPiece.constraints.sideLength.value
     );
   }
 
   return newPiece;
+}
+
+export function generateRectangularPiece(id, width, height) {
+  //let rectangle = 
 }
 
 /**
@@ -206,7 +192,7 @@ export function generateFreePiece(id, selected=true) {
     selected,
     color: "blue",
     constraints: {
-      type: {type: "string", value: "free", computed: true}
+      type: {type: "string", value: "free", computed: true, enabled: false}
     },
     sides: {}
   }
@@ -226,9 +212,10 @@ export function generateCirclePiece(id, x=100, y=100, radius=50) {
     id,
     color: "blue",
     constraints: {
-      type: {type: "string", value: "circle", computed: true},
-      center: {type: "point", value: {x, y}, computed: true},
-      radius: {type: "float", value: radius, computed: false},
+      type: {type: "option", optionType: "shape", value: "circle", enabled: false, computed: true},
+      center: {type: "point", value: {x, y}, enabled: true, computed: true},
+      radius: {type: "float", value: radius, enabled: true, computed: false},
+      tabLength: {type: "float", value: 50, enabled: true, computed: false},
     }
   }
 }
@@ -337,29 +324,24 @@ export const piecesSlice = createSlice({
      * moveFreePiece() 
      * @description changes the position of a piece of type free
      * @param pieceId the id of the piece to move 
-     * @param dx the change in x that took place as a result of dragging 
-     * @param dy the change in y that took place as a result of dragging
+     * @param x the change in x that took place as a result of dragging 
+     * @param y the change in y that took place as a result of dragging
      */
-    moveFreePiece: (state, action) => {
-      return {
-        ...state,
-        [action.payload.pieceId]:{
-          ...state[action.payload.pieceId],
-          sides: state[action.payload.pieceId].sides.map(side => {
-            return {
-              ...side,
-              start: {
-                x: side.start.x + action.payload.dx,
-                y: side.start.y + action.payload.dy
-              },
-              end: {
-                x: side.end.x + action.payload.dx,
-                y: side.end.y + action.payload.dy
-              }
-            }
-          })
-        }
+    movePiece: (state, action) => {
+      state[action.payload.pieceId].constraints.center.value = {
+        x: action.payload.x,
+        y: action.payload.y
       }
+    },
+
+
+    /**
+     * moveCirclePiece()
+     * @description moves the circle piece
+     * 
+     */
+    moveCirclePiece: (state, action) => {
+      state[action.payload.pieceId].constraints.center.value = {x: action.payload.x, y: action.payload.y};
     },
 
 
@@ -514,6 +496,34 @@ export const piecesSlice = createSlice({
       root.constraints = {
         [constraintName]: {
           computed: !oldValue.constraints[constraintName].computed
+        }
+      }
+
+      return _.merge(state, updatedTree);
+    },
+
+    /**
+      * toggleConstraintEnabled() 
+      * @description toggles the constraint computed value
+      * @param {Array} path the path to get to the object
+      */
+    toggleConstraintEnabled: (state, action) => {
+      let updatedTree = {};
+      let root = updatedTree;
+      let oldValue = current(state);
+      
+      for (let i = 0; i < action.payload.path.length - 1; i++) {
+        let id = action.payload.path[i];
+        root[id] = {}
+        root = root[id];
+        oldValue = oldValue[id]
+      }
+      
+      let constraintName = action.payload.path[action.payload.path.length - 1]
+
+      root.constraints = {
+        [constraintName]: {
+          enabled: !oldValue.constraints[constraintName].enabled
         }
       }
 
@@ -808,6 +818,7 @@ export const {
   setSideConstraintsValue,
   moveSideConstraintPoint,
   toggleConstraintComputed,
+  toggleConstraintEnabled,
   toggleConstraintValue,
   setConstraintValue,
   toggleSideConstraintValue,
@@ -816,7 +827,7 @@ export const {
   setSideStart, setSideEnd,
   selectAllPieces, selectPiece,
   deselectAllPieces, deselectPiece,
-  movePiece, moveFreePiece,
+  moveCirclePiece, movePiece,
   setPieceConstraintValue,
   addPiece,
   removePiece,

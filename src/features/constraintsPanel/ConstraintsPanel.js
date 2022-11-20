@@ -14,10 +14,15 @@ export function ConstraintsPanel({piece}) {
      * updateConstraints()
      * @description updates the constraints of a piece
      * @param {string} constraintName the constraintName of the constraint
-     * @param {object} newValue the object with the constraints
+     * @param {object} newValue the new value of the constraint
+     * @param {object} oldValue the old value of the constraint
      * @param {piece} piece the piece
      */
-    function updateConstraints(constraintName, newValue, piece) {         
+    function updateConstraints(constraintName, newValue, oldValue, piece) {      
+        console.log(constraintName);
+        console.log("Old Value: " + oldValue);
+        console.log("New Value: " + newValue);
+        
         if(constraintName === "radius" || constraintName === "sideLength")
             updatePiece(dispatch, piece, constraintName, newValue);
         else if(constraintName === "position") {
@@ -27,6 +32,11 @@ export function ConstraintsPanel({piece}) {
                 path: [piece.id, "rotation"],
                 newValue: newValue
             }))
+        } else if(constraintName === "type") {
+            // convert the piece to that of the new type
+            
+
+            
         }
     }
 
@@ -62,26 +72,17 @@ export function ConstraintsPanel({piece}) {
 
     return (
         <div>
-            <table style={{fontSize: 10}}>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th colSpan={2}>Value</th>
-                        <th>Computed</th>
-                    </tr>
-                </thead>
-                <ConstraintsTable
-                        root={[piece.id]}
-                        constraints={piece.constraints}
-                        updateConstraints={(path, newValue) => 
-                            updateConstraints(
-                                path[path.length-1], newValue, piece
-                            )
-                        }
-                        updateComputed={updateComputed}
-                >
-                </ConstraintsTable>
-            </table>
+            <ConstraintsTable
+                    root={[piece.id]}
+                    constraints={piece.constraints}
+                    updateConstraints={(path, newValue, oldValue) => 
+                        updateConstraints(
+                            path[path.length-1], newValue, oldValue, piece
+                        )
+                    }
+                    updateComputed={updateComputed}
+            >
+            </ConstraintsTable>
         </div>
     )
 }
