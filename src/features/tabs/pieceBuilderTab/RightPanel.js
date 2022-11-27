@@ -10,7 +10,7 @@ export function RightPanel({piece}) {
     return (
         <div>
             {
-                (piece && (piece.constraints.type.value === "sided" || piece.constraints.type.value  === "free")) ? <SidesPanel title="Sides" piece={piece} /> : <p>No info</p>
+                (piece && piece.sides) ? <SidesPanel title="Sides" piece={piece} /> : <p>This piece has now sides</p>
             }
         </div>
     )

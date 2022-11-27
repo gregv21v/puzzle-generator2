@@ -18,11 +18,19 @@ export function ToolPanel({}) {
     }
 
     /**
-     * shapeTool()
-     * @description sets the tool to the shape tool
+     * polygonTool()
+     * @description sets the tool to the polygon tool
      */
-    function shapeTool() {
-        dispatch(setTool("Shape"))
+    function polygonTool() {
+        dispatch(setTool("Polygon"))
+    }
+
+    /**
+     * rectangleTool()
+     * @description sets the tool to the rectangle tool
+     */
+    function rectangleTool() {
+        dispatch(setTool("Rectangle"))
     }
 
     /**
@@ -79,7 +87,8 @@ export function ToolPanel({}) {
             <p>Tool selected: {
                 tool
             }</p>
-            <button onClick={shapeTool}>Shape Tool</button>
+            <button onClick={polygonTool}>Polygon Tool</button>
+            <button onClick={rectangleTool}>Rectangle Tool</button>
             <button onClick={selectionTool}>Select</button>
             <button onClick={drawByRadiusTool} disabled>
                 Draw By Radius (NYI)

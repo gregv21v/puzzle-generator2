@@ -1,0 +1,15 @@
+.menuItem {
+    color: black;
+}
+
+
+.menu {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+
+.menus {
+    display: flex;
+    flex-direction: row;
+}

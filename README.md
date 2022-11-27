@@ -1,3 +1,9 @@
+# Puzzle Creator
+
+This is an app for creating puzzles. Its in its very early stages of development, but it is still functional and you can create puzzle pieces for 3d puzzles with it. There isn't yet a way to visualize the puzzle in 3d.
+
+
+
 # Getting Started with Create React App and Redux
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
@@ -45,6 +51,7 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
+
 ## TODO
 * Implement the ability to create selection boxes with "negative" width and height
 
@@ -65,7 +72,16 @@ To learn React, check out the [React documentation](https://reactjs.org/).
         - For the sided piece there is a box in the middle, and a box on the edge. When you move the 
         box on edge you adjust the radius, and rotation of the sided peice. When you move the box in the center
         you adjust the radius and the position of the piece.
-    
+
+* Add the ability to edit the width and height of the canvas
+* Add the ability to resize the different panels (first add the ability to close and open the panels)
+* Add the ability to combine different shapes together
+    * How to:
+        - you can create a list of sides that includes the sides of both shapes
+* Add the ability to change the color of each piece, both the background and the border
+* Add the ability to save and load pieces as json
+* Add the ability to show or display labels on the pieces themselves    
+
 
 
 

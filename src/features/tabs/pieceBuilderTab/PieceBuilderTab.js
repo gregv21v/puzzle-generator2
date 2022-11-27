@@ -8,6 +8,7 @@ import { selectPieces } from "../../pieces/piecesSlice";
 
 import styles from '../../panel/Panel.module.css';
 import { selectSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
+import { Menus } from "./Menus";
 
 
 /**
@@ -18,25 +19,28 @@ export function PieceBuilderTab() {
     const selectedPieceId = useSelector(selectSelectedPieceId)
 
     return (
-        <div className={styles.row}>
-            <Panel title="" style={styles.side}>
-                <LeftPanel piece={pieces[selectedPieceId]}>
+        <div>
+            <Menus></Menus>
+            <div className={styles.row}>
+                <Panel title="" style={styles.side}>
+                    <LeftPanel piece={pieces[selectedPieceId]}>
+                        
+                    </LeftPanel>
+                </Panel>
                     
-                </LeftPanel>
-            </Panel>
+                <Panel title="" style={styles.middle}>
+                    <MiddlePanel pieces={pieces}>
+
+                    </MiddlePanel>
+                </Panel>
                 
-            <Panel title="" style={styles.middle}>
-                <MiddlePanel pieces={pieces}>
+                <Panel title="" style={styles.side}>
+                    <RightPanel piece={pieces[selectedPieceId]}>
 
-                </MiddlePanel>
-            </Panel>
-            
-            <Panel title="" style={styles.side}>
-                <RightPanel piece={pieces[selectedPieceId]}>
-
-                </RightPanel>
-            </Panel>
-            
-        </div>
+                    </RightPanel>
+                </Panel>
+                
+            </div>
+        </div>  
     )
 }

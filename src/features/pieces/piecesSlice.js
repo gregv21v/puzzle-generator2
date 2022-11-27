@@ -3,52 +3,10 @@ import { getPointOnPolygon } from '../util/geometry';
 import { dist } from '../util/util';
 import _ from "lodash";
 
-// What do I need pieces to be able to do?
-// remove a piece without disruting the other piece ids 
-// change a property in all the pieces at once 
-
-// Solutions 
-/// 1
-// Store the objects in an array
-// Update their ids every time a piece is remove
-// if there are a lot of pieces this could take a lot of time
-/// 2
-// Store the objects in a map.
-// Whenever you remove a piece, just delete the key value pair
-// 
-
-
 const initialState = {
-  "0": generateSidedPiece(0),
-
-  "1": generateCirclePiece(1),
-
-  /*"2": {
-    id: 2,
-    type: "free",
-    selected: false,
-    x: 0,
-    y: 0,
-    constraints: {
-        tabLength: 10,
-        tabWidth: 10,
-        subdivisions: 3
-    },
-    sides: [
-        {
-            id: 0,
-            type: "line"
-            constraints: {
-              startPoint: {type: "point", displayName: "Start", value: {x: 50, y: 50}, computed: true},
-              endPoint: {type: "point", displayName: "End", value: {x: 50, y: 50}, computed: true}
-              subdivisions: {type: "number", displayName: "Subdivisions", value: 3, computed: true},
-              tabLength: {type: "number", displayName: "Tab Length", value: 10, computed: false},
-              startIn: {type: "boolean", displayName: "Start In", value: false, computed: false},
-              tabWidth: {type: "number", displayName: "Tab Width", value: 20, computed: false}
-            }
-        }
-    ]
-  }*/
+  //"0": generateSidedPiece(0),
+  //"1": generateCirclePiece(1),
+  //"2": generateRectangularPiece(2)
 };
 
 /**
@@ -99,7 +57,7 @@ export function generateSideConstraints() {
       endPoint: {value: end},
       subdivisions: {value: 3},
  * }
- * @returns 
+ * @returns a side with the given constraint values
  */
 export function generateSide(id, constraintValues) {
   return {
@@ -122,6 +80,7 @@ export function generateSide(id, constraintValues) {
 export function generateSidedPiece(id, constraintName="radius", value=40, sideCount=3, x=50, y=50, selected = true) {
   let newPiece = {
     id, 
+    name: "Regular Polygon " + id,
     selected,
     color: "blue",
     constraints: {
@@ -131,7 +90,6 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
       radius: {type: "float", value: 50, enabled: true, computed: false},
       sideLength: {type: "float", value: 50, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
-      tabWidth: {type: "float", value: 50, enabled: true, computed: false},
     },
     sides: {}
   }
@@ -139,6 +97,7 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
 
   let theta = 360 / sideCount
   if(constraintName === "radius") {
+    // update the polygon according to its radius
     newPiece.constraints.sideLength.computed = true 
     newPiece.constraints.radius.value = value
     newPiece.constraints.sideLength.value = dist(
@@ -147,7 +106,7 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     )
 
   } else if(constraintName === "sideLength") {
-    // update 
+    // update the polygon according to its side length
     newPiece.constraints.radius.computed = true;
     newPiece.constraints.sideLength.value = value
     newPiece.constraints.radius.value = newPiece.constraints.sideLength.value / (2 * Math.tan((theta/2) * (Math.PI / 180)))
@@ -156,17 +115,12 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
 
   for (let index = 0; index < sideCount; index++) {
     let angle1 = (index) * theta
-    let angle2 = (index+1) * theta
 
     newPiece.sides[index] = generateLineSide(
       index, 
       { // start point
         x: newPiece.constraints.radius.value * Math.sin(angle1 * (Math.PI / 180)),
         y: newPiece.constraints.radius.value * Math.cos(angle1 * (Math.PI / 180))
-      },
-      { // end point
-        x: newPiece.constraints.radius.value * Math.sin(angle2 * (Math.PI / 180)),
-        y: newPiece.constraints.radius.value * Math.cos(angle2 * (Math.PI / 180))
       },
       newPiece.constraints.sideLength.value
     );
@@ -175,8 +129,55 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
   return newPiece;
 }
 
-export function generateRectangularPiece(id, width, height) {
-  //let rectangle = 
+export function generateRectangularPiece(id, width=150, height=150, x=150, y=150, selected=true) {
+  let rect = {
+    id, 
+    name: "rectangle " + id,
+    selected,
+    color: "blue",
+    constraints: {
+      type: {type: "option", optionType: "shape", value: "rectangle", enabled: false, computed: true},
+      center: {type: "point", value: {x, y}, enabled: true, computed: true},
+      rotation: {type: "float", value: 0, enabled: true, computed: false},
+      width: {type: "float", value: width, enabled: true, computed: false},
+      height: {type: "float", value: height, enabled: true, computed: false},
+      tabLength: {type: "float", value: 50, enabled: true, computed: false},
+    },
+    sides: {}
+  }
+
+  // Create the sides for the polygon
+
+  // top side
+  rect.sides[0] = generateLineSide(
+    0,
+    {x: width/2, y: -height/2},
+    height
+  )
+
+  // right side
+  rect.sides[1] = generateLineSide(
+    1,
+    {x: -width/2, y: -height/2},
+    width
+  )
+
+  // bottom side
+  rect.sides[2] = generateLineSide(
+    2,
+    {x: -width/2, y: height/2},
+    height
+  )
+
+  // left side
+  rect.sides[3] = generateLineSide(
+    3,
+    {x: width/2, y: height/2},
+    width
+  )
+
+  return rect;
+  
 }
 
 /**
@@ -289,6 +290,18 @@ export const piecesSlice = createSlice({
     },
 
     /**
+     * renamePiece() 
+     * @description renames the piece
+     * @param pieceId the id of the piece to rename
+     * @param name the new name for the piece
+     */
+    renamePiece: (state, action) => {
+      state[action.payload.pieceId].name = action.payload.name
+    },
+    
+
+    /**
+     * @deprecated
      * pieceUseRadius()
      * @description instructs the piece to use the radius for rendering
      * @param pieceId the piece to use the radius for rendering for 
@@ -304,6 +317,7 @@ export const piecesSlice = createSlice({
     },
 
     /**
+     * @deprecated
      * pieceUseSideLength()
      * @description instructs the piece to use the side length for rendering
      * @param pieceId the piece to use the side length for rendering for 
@@ -821,6 +835,7 @@ export const {
   toggleConstraintEnabled,
   toggleConstraintValue,
   setConstraintValue,
+  renamePiece,
   toggleSideConstraintValue,
   toggleSideConstraintComputed,
   togglePieceConstraintComputed,

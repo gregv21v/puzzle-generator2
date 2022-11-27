@@ -90,7 +90,9 @@ export function getDisplayName(name) {
         rotation: "Rotation",
         sideLength: "Side Length",
         type: "Type",
-        center: "Center"
+        center: "Center",
+        width: "Width",
+        height: "Height"
     }[name]
 }
 

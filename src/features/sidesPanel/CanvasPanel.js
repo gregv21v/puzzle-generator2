@@ -4,7 +4,7 @@ import * as d3 from "d3"
 import { SelectionBox } from "../selectionBox/SelectionBox";
 import { CirclePiece } from "../piece/CirclePiece";
 import { dist, getPiecesWithinRect } from "../util/util";
-import { addPiece, deselectAllPieces, selectPiecesAction, setSideStart, setSideEnd, addSide, generateSidedPiece, generateLineSide, generateCirclePiece, generateFreePiece } from "../pieces/piecesSlice";
+import { addPiece, deselectAllPieces, selectPiecesAction, setSideStart, setSideEnd, addSide, generateSidedPiece, generateLineSide, generateCirclePiece, generateFreePiece, generateRectangularPiece } from "../pieces/piecesSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTool, setTool } from "../tool/toolSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../lastPieceId/lastPieceIdSlice";
@@ -131,13 +131,27 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
 
                             dispatch(incrementLastPieceId());
                             break;
-                        case "Shape":
+                        case "Polygon":
                             dispatch(addPiece(generateSidedPiece(
                                 lastId+1, 
                                 "radius", 
                                 dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
                                 3,
                                 startPoint[0], startPoint[1]
+                            )))
+
+                            dispatch(incrementLastPieceId());
+                            break;
+
+                        case "Rectangle":
+                            let width = Math.abs(endPoint[0] - startPoint[0]);
+                            let height = Math.abs(endPoint[1] - startPoint[1]);
+
+                            dispatch(addPiece(generateRectangularPiece(
+                                0,
+                                width, height,
+                                startPoint[0] - width/2, startPoint[1] - height/2,
+                                true
                             )))
 
                             dispatch(incrementLastPieceId());
@@ -195,7 +209,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
      */
     function renderPieces() {
         return Object.values(pieces).map(piece => {
-            if(piece.constraints.type.value === "sided") {
+            if(piece.constraints.type.value === "sided" || piece.constraints.type.value === "rectangle") {
                 return (
                     <Piece key={piece.id} piece={piece}></Piece>
                 )
@@ -214,7 +228,20 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
      */
     function renderCurrent() {
         switch(tool) {
-            case "Shape": 
+            case "Rectangle": 
+                let width = Math.abs(endPoint[0] - startPoint[0]);
+                let height = Math.abs(endPoint[1] - startPoint[1]);
+                return <Piece
+                    piece={
+                        generateRectangularPiece(
+                            0,
+                            width, height,
+                            startPoint[0] - width/2, startPoint[1] - height/2,
+                            true
+                        )
+                    }
+                ></Piece>
+            case "Polygon": 
                 return <Piece
                     piece={
                         generateSidedPiece(

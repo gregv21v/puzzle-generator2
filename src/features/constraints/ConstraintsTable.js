@@ -17,7 +17,8 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
         "shape" : [
             {label: "Free", value: "free"},
             {label: "Circle", value: "circle"},
-            {label: "Sided", value: "sided"}
+            {label: "Sided", value: "sided"},
+            {label: "Rectangle", value: "rectangle"}
         ]
     }
 

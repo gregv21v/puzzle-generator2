@@ -5,7 +5,8 @@
 import { useDispatch } from "react-redux"
 import { ConstraintsTable } from "../constraints/ConstraintsTable"
 import { setConstraintValue, toggleConstraintComputed } from "../pieces/piecesSlice"
-import { updatePiece, updatePiecePosition } from "../util/pieceFunctions"
+import { getRectangle } from "../util/geometry"
+import { updatePiece, updatePiecePosition, updatePieceWithPolygon } from "../util/pieceFunctions"
 
 export function ConstraintsPanel({piece}) {
     const dispatch = useDispatch()
@@ -23,9 +24,9 @@ export function ConstraintsPanel({piece}) {
         console.log("Old Value: " + oldValue);
         console.log("New Value: " + newValue);
         
-        if(constraintName === "radius" || constraintName === "sideLength")
+        if(constraintName === "radius" || constraintName === "sideLength") {
             updatePiece(dispatch, piece, constraintName, newValue);
-        else if(constraintName === "position") {
+        } else if(constraintName === "position") {
             updatePiecePosition(dispatch, piece, newValue);
         } else if(constraintName === "rotation") {
             dispatch(setConstraintValue({
@@ -34,10 +35,30 @@ export function ConstraintsPanel({piece}) {
             }))
         } else if(constraintName === "type") {
             // convert the piece to that of the new type
-            
 
-            
+        } else if(
+            piece.constraints.type.value === "rectangle" && 
+            constraintName === "width"
+        ) {
+            let rect = getRectangle(piece.center, newValue, piece.constraints.height.value);
+            updatePieceWithPolygon(dispatch, piece, rect);
+            console.log("Updating Width");
+        } else if(
+            piece.constraints.type.value === "rectangle" && 
+            constraintName === "height"
+        ) {
+            let rect = getRectangle(piece.center, piece.constraints.width.value, newValue);
+            updatePieceWithPolygon(dispatch, piece, rect);
+        } else if(constraintName === "tabLength") {
+            // update the sides of the shape with the new tab length
+            for (const key of Object.keys(piece.sides)) {
+                dispatch(setConstraintValue({
+                    path: [piece.id, "sides", key, "tabLength"],
+                    newValue: newValue
+                }))
+            }
         }
+            
     }
 
     /**
@@ -67,7 +88,7 @@ export function ConstraintsPanel({piece}) {
                     path: [piece.id, "sideLength"]
                 }))
             } 
-        }
+        } 
     }
 
     return (

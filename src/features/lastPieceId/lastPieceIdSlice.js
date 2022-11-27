@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = 1;
+const initialState = 0;
 
 export const lastPieceId = createSlice({
   name: 'lastPieceId',

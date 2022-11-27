@@ -15,6 +15,42 @@ export function getPointOnPolygon(radius, angle) {
 }
 
 
+export function getRectangle(center, width, height) {
+    let rect = {
+        center: {value: center},
+        width: {value: width},
+        height: {value: height},
+        sides: {}
+    }
+
+    // top side
+    rect.sides[0] = {
+        startPoint: {value: {x: width/2, y: -height/2}},
+        length: {value: height}
+    }
+
+    // right side
+    rect.sides[1] = {
+        startPoint: {value: {x: -width/2, y: -height/2}},
+        length: {value: width}
+    } 
+
+    // bottom side
+    rect.sides[2] = {
+        startPoint: {value: {x: -width/2, y: height/2}},
+        length: {value: height}
+    }
+
+    // left side
+    rect.sides[3] = {
+        startPoint: {value: {x: width/2, y: height/2}},
+        length: {value: width}
+    }
+
+    return rect;
+}
+
+
 
 /**
  * getPolygonSidePoints() 
