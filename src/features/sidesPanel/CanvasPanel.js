@@ -17,7 +17,6 @@ import { selectSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
 export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     const [startPoint, setStartPoint] = useState([0, 0])
     const [endPoint, setEndPoint] = useState([0, 0])
-    const [selectedSideId, setSelectedSideId] = useState(0)
     const [axisAlign, setAxisAlign] = useState(-1) // 0 for x axis, 1 for y axis
     const [mouseIsDown, setMouseIsDown] = useState(false)
     const [newPieceId, setNewPieceId] = useState(-1);
@@ -26,27 +25,36 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     const tool = useSelector(selectTool)
     const lastId = useSelector(selectLastPieceId)
     const selectedPieceId = useSelector(selectSelectedPieceId)
+    const [lastSideId, setLastSideId] = useState(0);
 
 
+    /**
+     * closeFreeFormPiece()
+     * @description closes the path of the current free form piece
+     * 
+     */
     function closeFreeFormPiece() {
-
         if(newPieceId !== -1) {
-
-            // close the shape
-            let piece = pieces[newPieceId]
-            let firstSide = piece.sides[0];
-
-            dispatch(addSide({
-                pieceId: newPieceId,
-                side: generateLineSide(
-                    0, 
-                    {x: endPoint[0], y: endPoint[1]},
-                    {x: firstSide.constraints.startPoint.value.x, y: firstSide.constraints.startPoint.value.y}
-                )
-            }))
-
             setNewPieceId(-1);
         }
+    }
+
+
+    /**
+     * addNewSide()
+     * @description adds a new side to a free draw piece
+     * @param pieceId the id of the piece to add the side to 
+     */
+    function addNewSide() {
+        dispatch(addSide({
+            pieceId: newPieceId,
+            side: generateLineSide(
+                lastSideId+1, 
+                {x: endPoint[0], y: endPoint[1]}
+            )
+        }))
+
+        setLastSideId(lastSideId+1)
     }
 
 
@@ -79,17 +87,14 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 setMouseIsDown(true)
                 setSelectionBoxHidden(false)
 
-                // when drawing a free hand piece
+                // Create a new free form piece with its first side
                 if(newPieceId === -1 && tool === "FreeHandDraw") {
-                    let newPiece = generateSidedPiece(lastId+1)
-                    newPiece.sides = [generateLineSide(
-                        0, 
-                        {x: startPoint[0], y: startPoint[1]},
-                        {x: endPoint[0], y: startPoint[1]},
-                        true
-                    )]
 
-                    dispatch(addPiece(newPiece))
+                    setLastSideId(lastSideId+1)
+
+                    dispatch(addPiece(
+                        generateFreePiece(lastId+1, {x: startPoint[0], y: startPoint[1]}, true)
+                    ))
 
                     setNewPieceId(lastId + 1)
 
@@ -100,7 +105,6 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
             .on("mousemove", (event) => {
                 //console.log("mousemove")
                 if(mouseIsDown) {
-                    console.log("endpoint set")
                     let point = d3.pointer(event);
 
                     if(axisAlign !== -1)
@@ -169,26 +173,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             dispatch(selectPiecesAction(pieceIds))
                             break;
                         case "FreeHandDraw":
-                            dispatch(setSideEnd({
-                                pieceId: newPieceId,
-                                sideId: selectedSideId,
-                                constraintId: "endPoint",
-                                newValue: {x: endPoint[0], y: endPoint[1]}
-                            }))
-
-                            dispatch(setSideStart({
-                                pieceId: newPieceId,
-                                sideId: selectedSideId,
-                                constraintId: "startPoint",
-                                newValue: {x: startPoint[0], y: startPoint[1]}
-                            }))
-
-                            dispatch(addSide({
-                                pieceId: newPieceId,
-                                side: generateLineSide(0)
-                            }))
-
-                            setSelectedSideId(selectedSideId + 1);
+                            addNewSide();
                 
                             break;
                             
@@ -209,7 +194,11 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
      */
     function renderPieces() {
         return Object.values(pieces).map(piece => {
-            if(piece.constraints.type.value === "sided" || piece.constraints.type.value === "rectangle") {
+            if(
+                piece.constraints.type.value === "sided" ||
+                piece.constraints.type.value === "rectangle" || 
+                piece.constraints.type.value === "free"
+            ) {
                 return (
                     <Piece key={piece.id} piece={piece}></Piece>
                 )
@@ -257,10 +246,17 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 return <CirclePiece piece={
                     generateCirclePiece(
                         lastId+1,
-                        
                         dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
                     )
                 }> </CirclePiece>
+            case "Free": 
+                return <Piece
+                    piece={
+                        generateFreePiece(
+                            lastId+1, {x: startPoint[0], y: startPoint[1]}, true
+                        )
+                    }
+                ></Piece>
             case "Selection": 
                 return <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
             default: 

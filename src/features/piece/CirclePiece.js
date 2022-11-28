@@ -44,12 +44,10 @@ export function CirclePiece({piece}) {
             piece.constraints.center.value.x + (piece.constraints.radius.value) * Math.cos(0),
             piece.constraints.center.value.y + (piece.constraints.radius.value) * Math.sin(0)
         )
-        let segments = 20
-        let angle = (Math.PI * 2) / segments
-        let tabLength = 20;
+        let angle = (Math.PI * 2) / piece.constraints.subdivisions.value
         let offset = 0;
         
-        for(let i = 0; i < segments; i++) {
+        for(let i = 0; i < piece.constraints.subdivisions.value; i++) {
             
             path.arc(piece.constraints.center.value.x, piece.constraints.center.value.y, piece.constraints.radius.value, angle * (i+offset), angle * (i+offset+1))
             path.lineTo(

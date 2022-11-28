@@ -1,7 +1,7 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
+import { movePiece, selectPieceAction } from '../pieces/piecesSlice';
 import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
 import { createPathForArcSide, createPathForLineSide, getGlobalCoordinate } from "../util/draw";
 
@@ -109,9 +109,8 @@ export function Piece({piece}) {
      * @description selects the piece on click
      */
     function onClick() {
-        console.log("Piece Clicked");
-        dispatch(deselectAllPieces())
-        dispatch(selectPiecesAction([piece.id]))
+        console.log(piece.id);
+        dispatch(selectPieceAction(piece.id))
         dispatch(setSelectedPieceId(piece.id))
     }
 

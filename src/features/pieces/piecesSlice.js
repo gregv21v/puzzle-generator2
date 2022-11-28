@@ -4,9 +4,9 @@ import { dist } from '../util/util';
 import _ from "lodash";
 
 const initialState = {
-  //"0": generateSidedPiece(0),
-  //"1": generateCirclePiece(1),
-  //"2": generateRectangularPiece(2)
+  "0": generateSidedPiece("0"),
+  "1": generateCirclePiece("1"),
+  "2": generateRectangularPiece("2")
 };
 
 /**
@@ -187,15 +187,19 @@ export function generateRectangularPiece(id, width=150, height=150, x=150, y=150
  * @param {boolean} selected whether the piece is selected or not
  * @returns a free draw piece
  */
-export function generateFreePiece(id, selected=true) {
+export function generateFreePiece(id, start={x: 0, y: 0}, selected=true) {
   return {
     id, 
     selected,
     color: "blue",
     constraints: {
-      type: {type: "string", value: "free", computed: true, enabled: false}
+      type: {type: "string", value: "free", computed: true, enabled: false},
+      center: {type: "point", value: {x: 0, y: 0}, enabled: true, computed: true},
+      rotation: {type: "float", value: 0, enabled: true, computed: false},
     },
-    sides: {}
+    sides: {
+      "0": generateLineSide(0, start)
+    }
   }
 } 
 
@@ -217,6 +221,7 @@ export function generateCirclePiece(id, x=100, y=100, radius=50) {
       center: {type: "point", value: {x, y}, enabled: true, computed: true},
       radius: {type: "float", value: radius, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
+      subdivisions: {type: "integer", value: 10, enabled: true, computed: false}
     }
   }
 }
@@ -289,7 +294,7 @@ export const piecesSlice = createSlice({
      */
     selectPieceAction: (state, action) => {
       for (const key of Object.keys(state)) {
-        if(key === action.payload) {
+        if(key === "" + action.payload) {
           state[key].selected = true;
         } else {
           state[key].selected = false;

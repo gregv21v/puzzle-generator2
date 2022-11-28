@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Panel } from "../../panel/Panel";
-import { deselectAllPieces, renamePiece, selectPieceAction, selectPieces, selectPiecesAction } from "../../pieces/piecesSlice";
+import { renamePiece, selectPieceAction, selectPieces } from "../../pieces/piecesSlice";
 import { setSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
 
 
@@ -31,8 +31,8 @@ export function PiecesPanel() {
      * @param {string} pieceId the pieces id
      */
     function onPieceClicked(pieceId) {
-        console.log(pieceId);
-        dispatch(selectPieceAction(pieceId));
+        dispatch(selectPieceAction(pieceId))
+        dispatch(setSelectedPieceId(pieceId))
     }
 
     return (
