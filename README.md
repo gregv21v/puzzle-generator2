@@ -80,7 +80,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).
         - you can create a list of sides that includes the sides of both shapes
 * Add the ability to change the color of each piece, both the background and the border
 * Add the ability to save and load pieces as json
-* Add the ability to show or display labels on the pieces themselves    
+* Add the ability to show or display labels on the pieces themselves 
+* Add the ability to select multiple pieces and change the constraints on all the selected pieces   
 
 
 

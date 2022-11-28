@@ -228,6 +228,16 @@ export const piecesSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     /**
+     * loadPieces()
+     * @description replaces all the pieces with new ones
+     * @param {Object} pieces the new pieces
+     */
+    loadPieces: (state, action) => {
+      return action.payload;
+    },
+
+
+    /**
      * selectAllPieces()
      * @description selects a list of piece
      */
@@ -274,6 +284,20 @@ export const piecesSlice = createSlice({
     },
 
     /**
+     * selectPiece()
+     * @param payload the id of the piece to select
+     */
+    selectPieceAction: (state, action) => {
+      for (const key of Object.keys(state)) {
+        if(key === action.payload) {
+          state[key].selected = true;
+        } else {
+          state[key].selected = false;
+        }
+      }
+    },
+
+    /**
      * deselectPiece()
      * @description deselects a list of pieces
      * @param pieceIds the ids of the pieces to deselect 
@@ -298,45 +322,11 @@ export const piecesSlice = createSlice({
     renamePiece: (state, action) => {
       state[action.payload.pieceId].name = action.payload.name
     },
-    
+      
 
     /**
-     * @deprecated
-     * pieceUseRadius()
-     * @description instructs the piece to use the radius for rendering
-     * @param pieceId the piece to use the radius for rendering for 
-     */
-    pieceUseRadius: (state, action) => {
-      return {
-        ...state,
-        [action.payload]:{
-          ...state[action.payload],
-          useSideLength: false
-        }
-      }
-    },
-
-    /**
-     * @deprecated
-     * pieceUseSideLength()
-     * @description instructs the piece to use the side length for rendering
-     * @param pieceId the piece to use the side length for rendering for 
-     */
-    pieceUseSideLength: (state, action) => {
-      return {
-        ...state,
-        [action.payload]:{
-          ...state[action.payload],
-          useSideLength: true
-        }
-      }
-    },
-
-    
-
-    /**
-     * moveFreePiece() 
-     * @description changes the position of a piece of type free
+     * movePiece() 
+     * @description changes the position of a piece 
      * @param pieceId the id of the piece to move 
      * @param x the change in x that took place as a result of dragging 
      * @param y the change in y that took place as a result of dragging
@@ -836,13 +826,14 @@ export const {
   toggleConstraintValue,
   setConstraintValue,
   renamePiece,
+  loadPieces,
   toggleSideConstraintValue,
   toggleSideConstraintComputed,
   togglePieceConstraintComputed,
   setSideStart, setSideEnd,
   selectAllPieces, selectPiece,
   deselectAllPieces, deselectPiece,
-  moveCirclePiece, movePiece,
+  moveCirclePiece, movePiece, selectPieceAction,
   setPieceConstraintValue,
   addPiece,
   removePiece,
