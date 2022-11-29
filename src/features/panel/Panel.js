@@ -22,7 +22,7 @@ export function Panel({style, title, children}) {
         <div className={styles.container + " " + style}>
             <div className={styles.heading} onClick={showHide}>
                 <p className={styles.title}>{title}</p>
-                <p className={styles.icon}><strong>{(hidden) ? "+" : "-"}</strong></p>
+                <span className={styles.icon}><strong>{(hidden) ? "+" : "-"}</strong></span>
             </div>
             {
                 (hidden) ? "" : (
@@ -32,5 +32,6 @@ export function Panel({style, title, children}) {
                 )
             }
         </div>      
+            
     )
 }

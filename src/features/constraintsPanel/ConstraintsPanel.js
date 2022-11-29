@@ -4,6 +4,7 @@
 
 import { useDispatch } from "react-redux"
 import { ConstraintsTable } from "../constraints/ConstraintsTable"
+import { Panel } from "../panel/Panel"
 import { setConstraintValue, toggleConstraintComputed } from "../pieces/piecesSlice"
 import { getRectangle } from "../util/geometry"
 import { updatePiece, updatePiecePosition, updatePieceWithPolygon } from "../util/pieceFunctions"
@@ -92,7 +93,7 @@ export function ConstraintsPanel({piece}) {
     }
 
     return (
-        <div>
+        <Panel title={"Piece Constraints"}>
             <ConstraintsTable
                     root={[piece.id]}
                     constraints={piece.constraints}
@@ -104,6 +105,6 @@ export function ConstraintsPanel({piece}) {
                     updateComputed={updateComputed}
             >
             </ConstraintsTable>
-        </div>
+        </Panel>
     )
 }

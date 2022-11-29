@@ -7,7 +7,7 @@
  * 
  */
 
-import { toggleConstraintComputed, toggleConstraintValue, toggleConstraintEnabled, setConstraintValue } from "../pieces/piecesSlice"
+import { toggleConstraintComputed, toggleConstraintEnabled, setConstraintValue } from "../pieces/piecesSlice"
 import { useDispatch } from 'react-redux';
 import { getDisplayName } from "../util/util";
 
@@ -80,7 +80,7 @@ export function OptionConstraint({path, constraint, options, parent, updateConst
                     type="checkbox" 
                     checked={!constraint.enabled} 
                     onChange={
-                        (event) => {
+                        () => {
                             onEnabledChanged()
                             //updateComputed(path, constraint, parent)
                         }

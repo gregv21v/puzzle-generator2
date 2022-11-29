@@ -32,7 +32,7 @@ export function Piece({piece}) {
                 }
             });
         handleDrag(d3.select(pathRef.current));
-    }, [piece])
+    }, [piece, dispatch])
 
 
     /** 

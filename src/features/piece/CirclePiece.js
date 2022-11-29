@@ -30,7 +30,7 @@ export function CirclePiece({piece}) {
                     }))
             });
         handleDrag(d3.select(pathRef.current));
-    }, [piece])
+    }, [piece, dispatch])
 
     /**
      * createPiecePath() 

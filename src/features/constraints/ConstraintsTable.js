@@ -93,6 +93,12 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
                     >
                     </OptionConstraint>
                 ) 
+            default: 
+                return (
+                    <td>
+                        <tr colSpan="3">Empty</tr>
+                    </td>
+                )
         }
     }
 

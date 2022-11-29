@@ -5,6 +5,7 @@ import lastPieceIdReducer from "../features/lastPieceId/lastPieceIdSlice";
 import toolReducer from "../features/tool/toolSlice";
 import selectionBoxReducer from "../features/selectionBox/selectionBoxSlice";
 import logReducer from "../features/log/logSlice";
+import panelSizesReducer from "../features/panel/panelSlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     selectedPieceId: selectedPieceIdReducer,
     tool: toolReducer,
     selectionBox: selectionBoxReducer,
-    log: logReducer
+    log: logReducer, 
+    panelSizes: panelSizesReducer
   },
 });
