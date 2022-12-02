@@ -162,14 +162,17 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             break;
 
                         case "Selection": 
+                            let x = (startPoint[0] < endPoint[0]) ? startPoint[0] : endPoint[0];
+                            let y = (startPoint[1] < endPoint[1]) ? startPoint[1] : endPoint[1];
+                                
                             let pieceIds = getPiecesWithinRect(pieces, {
-                                x: startPoint[0],
-                                y: startPoint[1],
+                                x, y,
                                 width: Math.abs(endPoint[0] - startPoint[0]),
                                 height: Math.abs(endPoint[1] - startPoint[1])
                             })
+
+                            console.log(pieceIds);
         
-                            dispatch(deselectAllPieces())
                             dispatch(selectPiecesAction(pieceIds))
                             break;
                         case "FreeHandDraw":

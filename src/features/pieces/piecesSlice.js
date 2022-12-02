@@ -5,8 +5,8 @@ import _ from "lodash";
 
 const initialState = {
   "0": generateSidedPiece("0"),
-  "1": generateCirclePiece("1"),
-  "2": generateRectangularPiece("2")
+  //"1": generateCirclePiece("1"),
+  "1": generateRectangularPiece("1")
 };
 
 /**
@@ -82,7 +82,6 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
     id, 
     name: "Regular Polygon " + id,
     selected,
-    color: "blue",
     constraints: {
       type: {type: "option", optionType: "shape", value: "sided", enabled: false, computed: true},
       center: {type: "point", value: {x, y}, enabled: true, computed: true},
@@ -90,6 +89,7 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
       radius: {type: "float", value: 50, enabled: true, computed: false},
       sideLength: {type: "float", value: 50, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
+      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
     sides: {}
   }
@@ -134,7 +134,6 @@ export function generateRectangularPiece(id, width=150, height=150, x=150, y=150
     id, 
     name: "rectangle " + id,
     selected,
-    color: "blue",
     constraints: {
       type: {type: "option", optionType: "shape", value: "rectangle", enabled: false, computed: true},
       center: {type: "point", value: {x, y}, enabled: true, computed: true},
@@ -142,6 +141,7 @@ export function generateRectangularPiece(id, width=150, height=150, x=150, y=150
       width: {type: "float", value: width, enabled: true, computed: false},
       height: {type: "float", value: height, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
+      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
     sides: {}
   }
@@ -196,6 +196,7 @@ export function generateFreePiece(id, start={x: 0, y: 0}, selected=true) {
       type: {type: "string", value: "free", computed: true, enabled: false},
       center: {type: "point", value: {x: 0, y: 0}, enabled: true, computed: true},
       rotation: {type: "float", value: 0, enabled: true, computed: false},
+      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
     sides: {
       "0": generateLineSide(0, start)
@@ -221,7 +222,8 @@ export function generateCirclePiece(id, x=100, y=100, radius=50) {
       center: {type: "point", value: {x, y}, enabled: true, computed: true},
       radius: {type: "float", value: radius, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
-      subdivisions: {type: "integer", value: 10, enabled: true, computed: false}
+      subdivisions: {type: "integer", value: 10, enabled: true, computed: false},
+      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
     }
   }
 }
@@ -275,17 +277,16 @@ export const piecesSlice = createSlice({
     /**
      * selectPiece
      * @description selects a list of piece
-     * @param pieceIds the ids of the pieces to select 
+     * @param {Array[string]} pieceIds the ids of the pieces to select
      */
     selectPiecesAction: (state, action) => {
-      let newPieces = {};
       for (const key of Object.keys(state)) {
-        newPieces[key] = {
-          ...state[key],
-          selected: action.payload.includes(state[key].id)
+        if(action.payload.includes(key)) {
+          state[key].selected = true;
+        } else {
+          state[key].selected = false;
         }
       }
-      return newPieces;
     },
 
     /**

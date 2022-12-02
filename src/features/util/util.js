@@ -1,3 +1,5 @@
+import { getGlobalCoordinate } from "./draw";
+
 /**
  * dist()
  * @description finds the distance between a start and end point
@@ -46,27 +48,26 @@ export function rectWithinRect(rect1, rect2) {
  * @param {x, y, width, height} rect the selection box
  */
 export function getPiecesWithinRect(pieces, rect) {
+
     let ids = [];
     for(const piece of Object.values(pieces)) {
 
-        let radius = piece.constraints.radius;
-
-        // if using side length
-        if(piece.type === "sided" && piece.useSideLength) {
-            let theta = 360 / piece.sides.length; // the angle to subdivide with
-            radius = piece.constraints.sideLength / (2 * Math.tan((theta/2) * (Math.PI / 180)));
+        // check to see that the vertex of each 
+        // side is in the rect
+        let pieceIsWithinRect = true;
+        for (const side of Object.values(piece.sides)) {
+            let point = getGlobalCoordinate(piece, side.constraints.startPoint.value)
+            if(!pointWithinRect(point, rect)) {
+                pieceIsWithinRect = false;
+                break;
+            }
         }
 
-
-        if(
-            radius <= piece.x - rect.x && piece.x - rect.x <= rect.width - radius &&
-            radius <= piece.y - rect.y && piece.y - rect.y <= rect.height - radius
-        ) {
+        if(pieceIsWithinRect) {
             ids.push(piece.id)
         }
     }
 
-    //console.log(ids);
     return ids;
 }
 

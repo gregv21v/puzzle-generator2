@@ -54,7 +54,6 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## TODO
 * Implement the ability to create selection boxes with "negative" width and height
-
 * Implement snap to grid, and snap to axis functionality
     * How to:
         - When you access align a line, you make it so the second point of the line is always on the same 
@@ -74,14 +73,18 @@ To learn React, check out the [React documentation](https://reactjs.org/).
         you adjust the radius and the position of the piece.
 
 * Add the ability to edit the width and height of the canvas
-* Add the ability to resize the different panels (first add the ability to close and open the panels)
-* Add the ability to combine different shapes together
+* Add the ability to combine different shapes together (requires multiple selection)
     * How to:
         - you can create a list of sides that includes the sides of both shapes
-* Add the ability to change the color of each piece, both the background and the border
-* Add the ability to save and load pieces as json
+* Add the ability to change the color of each piece, both the fill and the border (you can change the fill)
 * Add the ability to show or display labels on the pieces themselves 
-* Add the ability to select multiple pieces and change the constraints on all the selected pieces   
+* Add the ability to select multiple pieces and change the constraints on all the selected pieces
+    * How to:
+        - store an array of pieces then in the constraints panel only show the constraints that are common to all selected pieces
+* Add the ability to move the canvas around
+    - Only move the canvas when the scroll wheel is clicked down
+
+* Create a log that allows you to debug any errors that occur in the app
 
 
 

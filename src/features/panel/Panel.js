@@ -31,7 +31,6 @@ export function Panel({style, title, children}) {
                     </div>
                 )
             }
-        </div>      
-            
+        </div>          
     )
 }

@@ -124,6 +124,6 @@ export function Piece({piece}) {
                 piece.constraints.center.value.x + ", " + 
                 piece.constraints.center.value.y + ")"
             }
-            fill="red" stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
+            fill={piece.constraints.color.value} stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
     )
 }

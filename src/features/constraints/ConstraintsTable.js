@@ -3,6 +3,7 @@
  */
 
 import { BooleanConstraint } from "./BooleanConstraint"
+import { ColorConstraint } from "./ColorConstraint";
 import { FloatConstraint } from "./FloatConstraint"
 import { IntegerConstraint } from "./IntegerConstraint";
 import { OptionConstraint } from "./OptionConstraint";
@@ -92,6 +93,17 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
                         updateComputed={updateComputed}
                     >
                     </OptionConstraint>
+                ) 
+            case "color": 
+                return (
+                    <ColorConstraint
+                        key={name}
+                        path={[...root, name]}
+                        constraint={constraints[name]}
+                        updateConstraints={updateConstraints}
+                        updateComputed={updateComputed}
+                    >
+                    </ColorConstraint>
                 ) 
             default: 
                 return (
