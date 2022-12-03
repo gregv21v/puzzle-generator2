@@ -2,7 +2,7 @@ import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { deselectAllPieces, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
-import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
+import { setSelectedPiecesId } from "../selectedPieceId/selectedPiecesIdSlice";
 import { createPathForLineSide } from "../util/draw";
 
 
@@ -81,7 +81,7 @@ export function FreeFormPiece({piece}) {
         console.log("Piece Clicked");
         dispatch(deselectAllPieces())
         dispatch(selectPiecesAction([piece.id]))
-        dispatch(setSelectedPieceId(piece.id))
+        dispatch(setSelectedPiecesId([piece.id]))
     }
 
 

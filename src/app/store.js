@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import piecesReducer from '../features/pieces/piecesSlice';
-import selectedPieceIdReducer from '../features/selectedPieceId/selectedPieceIdSlice';
+import selectedPiecesIdReducer from '../features/selectedPiecesId/selectedPiecesIdSlice';
 import lastPieceIdReducer from "../features/lastPieceId/lastPieceIdSlice";
 import toolReducer from "../features/tool/toolSlice";
 import selectionBoxReducer from "../features/selectionBox/selectionBoxSlice";
@@ -11,7 +11,7 @@ export const store = configureStore({
   reducer: {
     pieces: piecesReducer,
     lastPieceId: lastPieceIdReducer, 
-    selectedPieceId: selectedPieceIdReducer,
+    selectedPiecesId: selectedPiecesIdReducer,
     tool: toolReducer,
     selectionBox: selectionBoxReducer,
     log: logReducer, 

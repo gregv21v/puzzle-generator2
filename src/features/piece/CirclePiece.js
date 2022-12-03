@@ -1,8 +1,8 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { deselectAllPieces, moveCirclePiece, movePiece, selectPiecesAction } from '../pieces/piecesSlice';
-import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
+import { moveCirclePiece, selectPieceAction } from '../pieces/piecesSlice';
+import { setSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
 
 
 /**
@@ -72,10 +72,8 @@ export function CirclePiece({piece}) {
      * @description selects the piece on click
      */
     function onClick() {
-        console.log("Piece Clicked");
-        dispatch(deselectAllPieces())
-        dispatch(selectPiecesAction([piece.id]))
-        dispatch(setSelectedPieceId(piece.id))
+        dispatch(selectPieceAction(piece.id))
+        dispatch(setSelectedPiecesId([piece.id]))
     }
 
     
@@ -83,6 +81,8 @@ export function CirclePiece({piece}) {
         <path 
             ref={pathRef} d={createPiecePath().toString()}
             onClick={onClick}
-            fill={piece.constraints.color.value} stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
+            fill={piece.constraints.color.value} 
+            stroke={(piece.selected) ? "green" : "blue"} 
+            strokeWidth={(piece.selected) ? "4" : "2"} />
     )
 }

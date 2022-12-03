@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Panel } from "../../panel/Panel";
 import { renamePiece, selectPieceAction, selectPieces } from "../../pieces/piecesSlice";
-import { setSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
+import { setSelectedPiecesId } from "../../selectedPiecesId/selectedPiecesIdSlice";
 
 
 
@@ -32,7 +32,7 @@ export function PiecesPanel() {
      */
     function onPieceClicked(pieceId) {
         dispatch(selectPieceAction(pieceId))
-        dispatch(setSelectedPieceId(pieceId))
+        dispatch(setSelectedPiecesId([pieceId]))
     }
 
     return (

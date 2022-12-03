@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = 0;
+const initialState = [0];
 
-export const selectedPieceId = createSlice({
-  name: 'selectedPieceId',
+export const selectedPiecesIdSlice = createSlice({
+  name: 'selectedPiecesId',
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
@@ -11,7 +11,7 @@ export const selectedPieceId = createSlice({
      * setSelectedPieceId
      * @description sets the selected piece id
      */
-    setSelectedPieceId: (state, action) => {
+    setSelectedPiecesId: (state, action) => {
       return action.payload;
     }
   }
@@ -20,8 +20,8 @@ export const selectedPieceId = createSlice({
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectSelectedPieceId = (state) => state.selectedPieceId;
+export const selectSelectedPiecesId = (state) => state.selectedPiecesId;
 
-export const { setSelectedPieceId } = selectedPieceId.actions;
+export const { setSelectedPiecesId } = selectedPiecesIdSlice.actions;
 
-export default selectedPieceId.reducer;
+export default selectedPiecesIdSlice.reducer;

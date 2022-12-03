@@ -216,7 +216,7 @@ export function generateFreePiece(id, start={x: 0, y: 0}, selected=true) {
 export function generateCirclePiece(id, x=100, y=100, radius=50) {
   return {
     id,
-    color: "blue",
+    name: "circle" + id,
     constraints: {
       type: {type: "option", optionType: "shape", value: "circle", enabled: false, computed: true},
       center: {type: "point", value: {x, y}, enabled: true, computed: true},

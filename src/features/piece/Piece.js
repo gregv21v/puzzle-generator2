@@ -2,7 +2,7 @@ import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { movePiece, selectPieceAction } from '../pieces/piecesSlice';
-import { setSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
+import { setSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
 import { createPathForArcSide, createPathForLineSide, getGlobalCoordinate } from "../util/draw";
 
 
@@ -111,7 +111,7 @@ export function Piece({piece}) {
     function onClick() {
         console.log(piece.id);
         dispatch(selectPieceAction(piece.id))
-        dispatch(setSelectedPieceId(piece.id))
+        dispatch(setSelectedPiecesId([piece.id]))
     }
 
     // renders the piece
@@ -124,6 +124,8 @@ export function Piece({piece}) {
                 piece.constraints.center.value.x + ", " + 
                 piece.constraints.center.value.y + ")"
             }
-            fill={piece.constraints.color.value} stroke={(piece.selected) ? "green" : "blue"} strokeWidth="2" />
+            fill={piece.constraints.color.value} 
+            stroke={(piece.selected) ? "green" : "blue"} 
+            strokeWidth={(piece.selected) ? "4" : "2"} />
     )
 }

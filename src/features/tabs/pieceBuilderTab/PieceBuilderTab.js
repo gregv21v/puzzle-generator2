@@ -6,13 +6,12 @@ import { MiddlePanel } from "./MiddlePanel";
 import { useDispatch, useSelector } from "react-redux";
 import { selectPieces } from "../../pieces/piecesSlice";
 
-import styles from '../../panel/Panel.module.css';
-import { selectSelectedPieceId } from "../../selectedPieceId/selectedPieceIdSlice";
-import { Menus } from "./Menus";
+import { selectSelectedPiecesId } from "../../selectedPiecesId/selectedPiecesIdSlice";
+import { Menus } from "../../menus/Menus";
 
 import Splitter, { SplitDirection } from '@devbookhq/splitter'
-import { useState } from "react";
 import { selectPanelSizes, setPanelSizes } from "../../panel/panelSlice";
+import { useRef } from "react";
 
 
 /**
@@ -20,9 +19,11 @@ import { selectPanelSizes, setPanelSizes } from "../../panel/panelSlice";
  */
 export function PieceBuilderTab() {
     const pieces = useSelector(selectPieces);
-    const selectedPieceId = useSelector(selectSelectedPieceId)
+    const selectedPiecesId = useSelector(selectSelectedPiecesId)
     const dispatch = useDispatch();
     const sizes = useSelector(selectPanelSizes)
+    const canvasRef = useRef(null)
+
 
     function handleResize(gutterIdx, allSizes) {
         dispatch(setPanelSizes(allSizes))
@@ -30,26 +31,26 @@ export function PieceBuilderTab() {
 
     return (
         <div>
-            <Menus></Menus>
+            <Menus canvasRef={canvasRef}></Menus>
             <Splitter 
                 direction={SplitDirection.Horizontal}
                 onResizeFinished={handleResize}
                 initialSizes={sizes}
             >
                     <Panel title="Left">
-                        <LeftPanel piece={pieces[selectedPieceId]}>
+                        <LeftPanel piece={pieces[selectedPiecesId[0]]}>
                             
                         </LeftPanel>
                     </Panel>
                         
                     <Panel title="Middle">
-                        <MiddlePanel pieces={pieces}>
+                        <MiddlePanel ref={canvasRef} pieces={pieces}>
 
                         </MiddlePanel>
                     </Panel>
                     
                     <Panel title="Right">
-                        <RightPanel piece={pieces[selectedPieceId]}>
+                        <RightPanel piece={pieces[selectedPiecesId[0]]}>
 
                         </RightPanel>
                     </Panel>

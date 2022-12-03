@@ -4,12 +4,11 @@ import * as d3 from "d3"
 import { SelectionBox } from "../selectionBox/SelectionBox";
 import { CirclePiece } from "../piece/CirclePiece";
 import { dist, getPiecesWithinRect } from "../util/util";
-import { addPiece, deselectAllPieces, selectPiecesAction, setSideStart, setSideEnd, addSide, generateSidedPiece, generateLineSide, generateCirclePiece, generateFreePiece, generateRectangularPiece } from "../pieces/piecesSlice";
+import { addPiece, selectPiecesAction, addSide, generateSidedPiece, generateLineSide, generateCirclePiece, generateFreePiece, generateRectangularPiece } from "../pieces/piecesSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTool, setTool } from "../tool/toolSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../lastPieceId/lastPieceIdSlice";
-import { FreeFormPiece } from "../piece/FreeFormPiece";
-import { selectSelectedPieceId } from "../selectedPieceId/selectedPieceIdSlice";
+import { setSelectedPiecesId, selectSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
 
 /**
  * CanvasPanel - the panel where all the pieces are drawn to 
@@ -24,7 +23,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     const dispatch = useDispatch()
     const tool = useSelector(selectTool)
     const lastId = useSelector(selectLastPieceId)
-    const selectedPieceId = useSelector(selectSelectedPieceId)
+    const selectedPieceId = useSelector(selectSelectedPiecesId)[0]
     const [lastSideId, setLastSideId] = useState(0);
 
 
@@ -152,9 +151,9 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             let height = Math.abs(endPoint[1] - startPoint[1]);
 
                             dispatch(addPiece(generateRectangularPiece(
-                                0,
+                                lastId+1,
                                 width, height,
-                                startPoint[0] - width/2, startPoint[1] - height/2,
+                                startPoint[0] + width/2, startPoint[1] + height/2,
                                 true
                             )))
 
@@ -171,8 +170,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                                 height: Math.abs(endPoint[1] - startPoint[1])
                             })
 
-                            console.log(pieceIds);
-        
+                            dispatch(setSelectedPiecesId(pieceIds))
                             dispatch(selectPiecesAction(pieceIds))
                             break;
                         case "FreeHandDraw":
@@ -228,7 +226,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                         generateRectangularPiece(
                             0,
                             width, height,
-                            startPoint[0] - width/2, startPoint[1] - height/2,
+                            startPoint[0] + width/2, startPoint[1] + height/2,
                             true
                         )
                     }
@@ -248,8 +246,13 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
             case "Circle":
                 return <CirclePiece piece={
                     generateCirclePiece(
-                        lastId+1,
-                        dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]})
+                        0, 
+                        startPoint[0], 
+                        startPoint[1],
+                        dist(
+                            {x: startPoint[0], y: startPoint[1]}, 
+                            {x: endPoint[0], y: endPoint[1]}
+                        )
                     )
                 }> </CirclePiece>
             case "Free": 
