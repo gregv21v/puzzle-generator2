@@ -58,10 +58,12 @@ export function SidesPanel({title, piece}) {
                 let currentLength = dist(startPoint, endPoint);
                 let amountToExtend = currentLength - length;
                 return endPoint;
+                
                 return {
                     x: endPoint.x + (endPoint.x - startPoint.x) / currentLength * amountToExtend,
                     y: endPoint.y + (endPoint.y - startPoint.y) / currentLength * amountToExtend,
                 }
+                
             }
         }
     }
@@ -107,6 +109,9 @@ export function SidesPanel({title, piece}) {
                         }
                     }   
                 }))
+                break;
+            default: 
+                ;
         }
         
     }

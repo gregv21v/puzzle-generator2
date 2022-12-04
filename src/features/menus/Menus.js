@@ -28,7 +28,7 @@ export function Menus({canvasRef}) {
             downloadSvg(canvasRef.current.cloneNode(true), filename);
             setExportClicked(false);
         }
-    }, [exportClicked, filename])
+    }, [exportClicked, filename, canvasRef])
 
     
 
@@ -119,6 +119,7 @@ export function Menus({canvasRef}) {
                         Empty
                     </div>                  
                 )
+            default: break;
         }
     }
 
@@ -148,7 +149,7 @@ export function Menus({canvasRef}) {
                         <button onClick={importFile}>Import</button>
                     </Modal>
                 )
-
+            default: break;
         }
     }
 

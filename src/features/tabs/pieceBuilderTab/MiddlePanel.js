@@ -1,14 +1,11 @@
 
-import React, { useRef, useEffect, useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedPiecesId, setSelectedPiecesId } from "../../selectedPiecesId/selectedPiecesIdSlice";
 import { CanvasPanel } from "../../sidesPanel/CanvasPanel";
 
-import { addPiece, loadPieces, removeAllPieces, removePiece } from "../../pieces/piecesSlice";
-import { selectTool } from "../../tool/toolSlice";
+import { addPiece, removeAllPieces, removePiece } from "../../pieces/piecesSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../../lastPieceId/lastPieceIdSlice";
-import { saveToFile } from "../../util/util";
-import { Modal } from "../../modal/Modal";
 import { forwardRef } from "react";
 
 /**

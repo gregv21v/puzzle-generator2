@@ -76,7 +76,7 @@ export function Piece({piece}) {
             
             for (let side of Object.values(piece.sides)) {
                 // first side 
-                if(i == 0) {
+                if(i === 0) {
                     let start = getGlobalCoordinate(piece, side.constraints.startPoint.value)
                     path.moveTo(start.x, start.y);
                     next = side;

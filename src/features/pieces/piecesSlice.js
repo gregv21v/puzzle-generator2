@@ -408,7 +408,7 @@ export const piecesSlice = createSlice({
     removePiece: (state, action) => { 
       let newPieces = {};
       for (const key of Object.keys(state)) {
-        if(key != action.payload) {
+        if(key !== action.payload) {
           console.log(key + " not removed");
           newPieces[key] = {
             ...state[key]

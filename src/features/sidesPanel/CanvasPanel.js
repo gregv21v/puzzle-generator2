@@ -75,6 +75,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 // align the point with the y axis
                 setAxisAlign(1)
                 break;
+            default: break;
         }
             
     }
@@ -185,7 +186,12 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
         document.addEventListener("keypress", onKeyPress)
 
         return () => document.removeEventListener("keypress", onKeyPress)
-    }, [pieces, mouseIsDown, startPoint, endPoint, dispatch, selectedPieceId, newPieceId])
+    }, [
+        pieces, mouseIsDown, startPoint, 
+        endPoint, dispatch, selectedPieceId, 
+        newPieceId, svgRef,
+        axisAlign, lastId, lastSideId, onKeyPress, tool
+    ])
 
 
     /**

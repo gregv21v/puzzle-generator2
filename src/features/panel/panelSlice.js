@@ -13,7 +13,7 @@ export const panelSizes = createSlice({
      * @param panelIndex the index of the panel in the array
      * @param newSize the new size of the panel
      */
-    setPanelSizes: (state, action) => {
+    setPanelSize: (state, action) => {
       state[action.payload.panelIndex] = action.payload.newSize;
     },
 
