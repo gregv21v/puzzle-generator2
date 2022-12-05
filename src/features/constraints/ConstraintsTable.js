@@ -19,7 +19,8 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
             {label: "Free", value: "free"},
             {label: "Circle", value: "circle"},
             {label: "Sided", value: "sided"},
-            {label: "Rectangle", value: "rectangle"}
+            {label: "Rectangle", value: "rectangle"},
+            {label: "Shape2", value: "shape2"}, // the new shape type that uses vertices and edges
         ]
     }
 

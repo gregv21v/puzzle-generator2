@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectTool, setTool } from "../tool/toolSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../lastPieceId/lastPieceIdSlice";
 import { setSelectedPiecesId, selectSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
+import { Piece2 } from "../piece/Piece2";
+import { OpenPiece } from "../piece/OpenPiece";
 
 /**
  * CanvasPanel - the panel where all the pieces are drawn to 
@@ -25,6 +27,9 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     const lastId = useSelector(selectLastPieceId)
     const selectedPieceId = useSelector(selectSelectedPiecesId)[0]
     const [lastSideId, setLastSideId] = useState(0);
+    const [currentPiece, setCurrentPiece] = useState(generateFreePiece(0, {x: 0, y: 0}));
+
+    
 
 
     /**
@@ -35,26 +40,39 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     function closeFreeFormPiece() {
         if(newPieceId !== -1) {
             setNewPieceId(-1);
+
+            // recalculate the center of the piece
+            let piece = {...currentPiece}
+
+            
+            // add up the x and y coordinates of each side
+            let xTotal = 0;
+            let yTotal = 0;
+            for (const side of Object.values(piece.sides)) {
+                xTotal += side.constraints.startPoint.value.x;
+                yTotal += side.constraints.startPoint.value.y;
+            }
+
+            piece.constraints.center.value = {
+                x: xTotal / Object.keys(piece.sides).length,
+                y: yTotal / Object.keys(piece.sides).length
+            } 
+
+            // recalculate the position of each side
+            for (const key of Object.keys(piece.sides)) {
+                piece.sides[key].constraints.startPoint.value.x -= piece.constraints.center.value.x
+                piece.sides[key].constraints.startPoint.value.y -= piece.constraints.center.value.y
+            }
+
+            // add the piece to the list of pieces
+            dispatch(addPiece(piece))
+
+            dispatch(incrementLastPieceId())
         }
     }
 
 
-    /**
-     * addNewSide()
-     * @description adds a new side to a free draw piece
-     * @param pieceId the id of the piece to add the side to 
-     */
-    function addNewSide() {
-        dispatch(addSide({
-            pieceId: newPieceId,
-            side: generateLineSide(
-                lastSideId+1, 
-                {x: endPoint[0], y: endPoint[1]}
-            )
-        }))
 
-        setLastSideId(lastSideId+1)
-    }
 
 
     function onKeyPress(event) {
@@ -83,6 +101,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     useEffect(() => {
         d3.select(svgRef.current)
             .on("mousedown", (event) => {
+                let point = d3.pointer(event);
                 setStartPoint(d3.pointer(event))
                 setMouseIsDown(true)
                 setSelectionBoxHidden(false)
@@ -90,15 +109,21 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 // Create a new free form piece with its first side
                 if(newPieceId === -1 && tool === "FreeHandDraw") {
 
+                    // create the new piece with two sides
+                    let newPiece = generateFreePiece(lastId+1, {x: point[0], y: point[1]}, true)
+                    let sides = {...newPiece.sides};
+                    sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: point[0], y: point[1]})
+
+                    
+                    // update the current piece
+                    setCurrentPiece(currentPiece => ({
+                        ...newPiece,
+                        sides
+                    }))
+
                     setLastSideId(lastSideId+1)
 
-                    dispatch(addPiece(
-                        generateFreePiece(lastId+1, {x: startPoint[0], y: startPoint[1]}, true)
-                    ))
-
                     setNewPieceId(lastId + 1)
-
-                    dispatch(incrementLastPieceId());
                 } 
                 
             })
@@ -110,6 +135,18 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                     if(axisAlign !== -1)
                         point[axisAlign] = startPoint[axisAlign]
                     setEndPoint(point)
+
+                    // update the end side
+                    setCurrentPiece(state => {
+                        let sides = {...state.sides}
+                        sides[lastSideId].constraints.startPoint.value = {x: endPoint[0], y: endPoint[1]}
+
+                        return {
+                            ...state,
+                            sides: sides
+                        }
+                    })
+
                 }
             })
             .on("mouseup", (event) => {
@@ -175,7 +212,18 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             dispatch(selectPiecesAction(pieceIds))
                             break;
                         case "FreeHandDraw":
-                            addNewSide();
+                            setLastSideId(lastSideId+1);
+
+                            // update the end side
+                            setCurrentPiece(state => {
+                                let sides = {...state.sides}
+                                sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: endPoint[0], y: endPoint[1]})
+
+                                return {
+                                    ...state,
+                                    sides: sides
+                                }
+                            })
                 
                             break;
                             
@@ -190,7 +238,8 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
         pieces, mouseIsDown, startPoint, 
         endPoint, dispatch, selectedPieceId, 
         newPieceId, svgRef,
-        axisAlign, lastId, lastSideId, onKeyPress, tool
+        axisAlign, lastId, lastSideId, onKeyPress, tool,
+        currentPiece
     ])
 
 
@@ -208,6 +257,10 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
             ) {
                 return (
                     <Piece key={piece.id} piece={piece}></Piece>
+                )
+            } else if(piece.constraints.type.value === "shape2") {
+                return (
+                    <Piece2 key={piece.id} piece={piece}></Piece2>
                 )
             } else if(piece.constraints.type.value === "circle") {
                 return (
@@ -261,14 +314,12 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                         )
                     )
                 }> </CirclePiece>
-            case "Free": 
-                return <Piece
-                    piece={
-                        generateFreePiece(
-                            lastId+1, {x: startPoint[0], y: startPoint[1]}, true
-                        )
-                    }
-                ></Piece>
+            case "FreeHandDraw": 
+                return <OpenPiece
+                    piece={currentPiece}
+                ></OpenPiece>
+            case "Shape2": 
+                break;
             case "Selection": 
                 return <SelectionBox startPoint={startPoint} endPoint={endPoint} hidden={selectionBoxHidden}/>
             default: 

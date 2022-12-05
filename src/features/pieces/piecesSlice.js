@@ -6,8 +6,64 @@ import _ from "lodash";
 const initialState = {
   "0": generateSidedPiece("0"),
   //"1": generateCirclePiece("1"),
-  "1": generateRectangularPiece("1")
+  "1": generateRectangularPiece("1"),
+  "2": generateShape2Piece("2")
 };
+
+
+/**
+ * generateShape() 
+ * @description generates a shape that have vertices and edges instead of a list of sides
+ * @param {string} id the id of the shape 
+ * @param {number} x the center x coordinate of the piece
+ * @param {number} y the center y coordinate of the piece
+ * @param {boolean} selected whether this shape is selected or not
+ */
+export function generateShape2Piece(id, x=100, y=100, selected = true) {
+  return {
+    id, 
+    name: "Shape " + id,
+    selected,
+    constraints: {
+      type: {type: "option", optionType: "shape", value: "shape2", enabled: false, computed: true},
+      center: {type: "point", value: {x, y}, enabled: true, computed: true},
+      rotation: {type: "float", value: 45, enabled: true, computed: false},
+      fill: {type: "color", value: "red", enabled: true, computed: false},
+      stroke: {type: "color", value: "blue", enabled: true, computed: false},
+    },
+    vertices: [
+      {x: 0, y: 0},
+      {x: 100, y: 0}
+    ],
+    edges: [
+      generateEdge(0, 0, 1)
+    ]
+  }
+}
+
+/**
+ * generateEdge()
+ * @description generates a new edge
+ * @param {string} id the id of the edge
+ * @param {number} startVertexId the id of the start vertex that makes up the edge
+ * @param {number} endVertexId the id of the end vertex that makes up the edge
+ */
+export function generateEdge(id, startVertexId, endVertexId) {
+  return {
+    id,
+    constraints: {
+      type: {type: "string", value: "line", enabled: true, computed: true},
+      start: {type: "integer", value: startVertexId, enabled: true, computed: true},
+      end: {type: "integer", value: endVertexId, enabled: true, computed: true},
+      subdivisions: {type: "integer", value: 3, enabled: true, computed: true},
+      length: {type: "float", value: 10, enabled: true, computed: false},
+      tabWidth: {type: "float", value: 20, enabled: true, computed: false},
+      tabLength: {type: "float", value: 10, enabled: true, computed: false},
+      startIn: {type: "boolean", value: false, enabled: true, computed: false}  
+    }
+  }
+}
+
 
 /**
  * generateLineSide()
@@ -46,6 +102,7 @@ export function generateSideConstraints() {
     startIn: {type: "boolean", value: false, enabled: true, computed: false}  
   }
 }
+
 
 /**
  * 
@@ -191,7 +248,7 @@ export function generateFreePiece(id, start={x: 0, y: 0}, selected=true) {
   return {
     id, 
     selected,
-    color: "blue",
+    name: "Free " + id,
     constraints: {
       type: {type: "string", value: "free", computed: true, enabled: false},
       center: {type: "point", value: {x: 0, y: 0}, enabled: true, computed: true},
@@ -234,6 +291,27 @@ export const piecesSlice = createSlice({
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
+    /**
+     * pieceAddVertex() 
+     * @description adds a vertex to a piece
+     * @param {point} vertex the vertex to add to the piece
+     */
+    pieceAddVertex: (state, action) => {
+      state[action.payload.pieceId].vertices.push(action.payload.newVertex)
+    },
+
+    /**
+     * pieceAddEdge()
+     * @description adds a edge to a piece
+     * @param {Edge} edge the new edge to add
+     */
+    pieceAddEdge: (state, action) => {
+      state[action.payload.pieceId].edges.push(action.payload.newEdge)
+    },
+
+    
+
+
     /**
      * loadPieces()
      * @description replaces all the pieces with new ones
