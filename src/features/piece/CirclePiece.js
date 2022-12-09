@@ -81,8 +81,8 @@ export function CirclePiece({piece}) {
         <path 
             ref={pathRef} d={createPiecePath().toString()}
             onClick={onClick}
-            fill={piece.constraints.color.value} 
-            stroke={(piece.selected) ? "green" : "blue"} 
+            fill={piece.constraints.fill.value} 
+            stroke={(piece.selected) ? "green" : piece.constraints.stroke.value} 
             strokeWidth={(piece.selected) ? "4" : "2"} />
     )
 }

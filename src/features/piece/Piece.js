@@ -1,9 +1,11 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { movePiece, selectPieceAction } from '../pieces/piecesSlice';
 import { setSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
+import { selectTool } from "../tool/toolSlice";
 import { createPathForArcSide, createPathForLineSide, getGlobalCoordinate } from "../util/draw";
+import { Vertex } from "./Vertex";
 
 
 
@@ -11,11 +13,15 @@ import { createPathForArcSide, createPathForLineSide, getGlobalCoordinate } from
  * Piece
  * @description Creates the piece component.
  * @param {Props} props the props of the component
+ * @param {Piece} piece the piece that this component will render
+ * @param {string} mode the type of mode that this component is in. You can either render vertices or edges
  * @returns an object the describes the rendering of the component
  */
 export function Piece({piece}) {
     const pathRef = useRef()
     const dispatch = useDispatch()
+    const tool = useSelector(selectTool)
+    const mode = "vertices";
 
     /**
      * Implements the ability to drag pieces around the canvas
@@ -23,7 +29,7 @@ export function Piece({piece}) {
     useEffect(() => {    
         const handleDrag = d3.drag()
             .on('drag', function(event) {
-                if(piece.selected) {
+                if(piece.selected && tool === "Selection") {
                     dispatch(movePiece({
                         pieceId: piece.id,
                         x: event.x,
@@ -105,6 +111,26 @@ export function Piece({piece}) {
     }
 
     /**
+     * renderVertices()
+     * @description renders the vertices of the shape
+     * @returns returns a rendering of the vertices of the shape
+     */
+    function renderVertices() {
+        return <g
+            transform={"rotate(" + 
+                piece.constraints.rotation.value + ", " + 
+                piece.constraints.center.value.x + ", " + 
+                piece.constraints.center.value.y + ")"
+            }
+        >
+            {
+                Object.values(piece.sides).map(side => {
+                   return <Vertex piece={piece} vertex={side}></Vertex>
+                })}
+        </g>
+    }
+
+    /**
      * onClick()
      * @description selects the piece on click
      */
@@ -115,17 +141,23 @@ export function Piece({piece}) {
     }
 
     // renders the piece
+    //{(mode === "edges") ? renderEdges() : ""}
     return (
-        <path 
-            ref={pathRef} d={createPiecePath().toString()}
-            onClick={onClick}
-            transform={"rotate(" + 
-                piece.constraints.rotation.value + ", " + 
-                piece.constraints.center.value.x + ", " + 
-                piece.constraints.center.value.y + ")"
-            }
-            fill={piece.constraints.color.value} 
-            stroke={(piece.selected) ? "green" : "blue"} 
-            strokeWidth={(piece.selected) ? "4" : "2"} />
+        <g>
+            <path 
+                ref={pathRef} d={createPiecePath().toString()}
+                onClick={onClick}
+                transform={"rotate(" + 
+                    piece.constraints.rotation.value + ", " + 
+                    piece.constraints.center.value.x + ", " + 
+                    piece.constraints.center.value.y + ")"
+                }
+                fill={piece.constraints.fill.value} 
+                stroke={(piece.selected && tool !== "Edit") ? "green" : piece.constraints.stroke.value} 
+                strokeWidth={(piece.selected) ? "4" : "2"} />
+            {(piece.selected && tool === "Edit") ? renderVertices() : ""}
+            
+        </g>
+            
     )
 }

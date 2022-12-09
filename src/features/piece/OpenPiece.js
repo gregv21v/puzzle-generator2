@@ -81,8 +81,8 @@ export function OpenPiece({piece}) {
                 piece.constraints.center.value.x + ", " + 
                 piece.constraints.center.value.y + ")"
             }
-            fill={piece.constraints.color.value} 
-            stroke={"green"} 
+            fill={piece.constraints.fill.value} 
+            stroke={piece.constraints.stroke.value} 
             strokeWidth={"2"} />
     )
 }

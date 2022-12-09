@@ -81,6 +81,7 @@ export function ToolPanel({}) {
     function circleTool() {
         dispatch(setTool("Circle"))
     }
+
     
     return (
         <div>
@@ -97,7 +98,7 @@ export function ToolPanel({}) {
                 Draw By Side Length (NYI)
             </button>
             <button onClick={freeHandDrawTool}>Free Hand Draw</button>
-            <button onClick={editTool} disabled>Edit (NYI) </button>
+            <button onClick={editTool}>Edit</button>
             <button onClick={lineTool} disabled> Line (NYI) </button>
             <button onClick={circleTool}> Circle </button>
         </div>

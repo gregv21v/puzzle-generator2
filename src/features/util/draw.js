@@ -19,6 +19,20 @@ export function getGlobalCoordinate(piece, point) {
 }
 
 
+/**
+ * getLocalCoordinate()
+ * @description get the local position of a given point on a piece
+ * @param {Piece} piece the piece that the point is on
+ * @param {Point} point the point to get the local coordinate of 
+ */
+export function getLocalCoordinate(piece, point) {
+    return {
+        x: point.x - piece.constraints.center.value.x,
+        y: point.y - piece.constraints.center.value.y
+    }
+}
+
+
 
 /**
  * @deprecated

@@ -85,6 +85,14 @@ To learn React, check out the [React documentation](https://reactjs.org/).
     - Only move the canvas when the scroll wheel is clicked down
 
 * Create a log that allows you to debug any errors that occur in the app
+* Create a function that allows you to join two edges.
+    * How to:
+        Click one edge, then the other, and join the end points of those edges/sides together
+
+* Create an undo feature that allows you to undo your last action
+* Create an edit feature that allow you to edit the vertices in any shape 
+* Evaluate mathamatical expressions in the text boxes
+
 
 
 

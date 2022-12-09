@@ -5,9 +5,7 @@ import _ from "lodash";
 
 const initialState = {
   "0": generateSidedPiece("0"),
-  //"1": generateCirclePiece("1"),
   "1": generateRectangularPiece("1"),
-  "2": generateShape2Piece("2")
 };
 
 
@@ -86,6 +84,8 @@ export function generateLineSide(id, start={x: 0, y: 0}, length=20) {
   }
 }
 
+
+
 /**
  * generateSideConstraints()
  * @descripition generates the side constraints
@@ -146,7 +146,8 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
       radius: {type: "float", value: 50, enabled: true, computed: false},
       sideLength: {type: "float", value: 50, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
-      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
+      fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
+      stroke: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
     sides: {}
   }
@@ -186,6 +187,17 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
   return newPiece;
 }
 
+/**
+ * generateRectangularPiece()
+ * @description generates a rectangle piece
+ * @param {string} id the id of the piece
+ * @param {number} width the width of the rectangle
+ * @param {number} height the height of the rectangle
+ * @param {number} x the x coordinate of the rectangle
+ * @param {number} y the y coordinate of the rectangle
+ * @param {boolean} selected whether the rectangle is selected
+ * @returns 
+ */
 export function generateRectangularPiece(id, width=150, height=150, x=150, y=150, selected=true) {
   let rect = {
     id, 
@@ -198,7 +210,8 @@ export function generateRectangularPiece(id, width=150, height=150, x=150, y=150
       width: {type: "float", value: width, enabled: true, computed: false},
       height: {type: "float", value: height, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
-      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
+      fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
+      stroke: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
     sides: {}
   }
@@ -244,7 +257,7 @@ export function generateRectangularPiece(id, width=150, height=150, x=150, y=150
  * @param {boolean} selected whether the piece is selected or not
  * @returns a free draw piece
  */
-export function generateFreePiece(id, start={x: 0, y: 0}, selected=true) {
+export function generateFreePiece(id, selected=true) {
   return {
     id, 
     selected,
@@ -253,11 +266,10 @@ export function generateFreePiece(id, start={x: 0, y: 0}, selected=true) {
       type: {type: "string", value: "free", computed: true, enabled: false},
       center: {type: "point", value: {x: 0, y: 0}, enabled: true, computed: true},
       rotation: {type: "float", value: 0, enabled: true, computed: false},
-      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
+      fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
+      stroke: {type: "color", value: "black", enabled: true, computed: false}
     },
-    sides: {
-      "0": generateLineSide(0, start)
-    }
+    sides: {}
   }
 } 
 
@@ -280,7 +292,8 @@ export function generateCirclePiece(id, x=100, y=100, radius=50) {
       radius: {type: "float", value: radius, enabled: true, computed: false},
       tabLength: {type: "float", value: 50, enabled: true, computed: false},
       subdivisions: {type: "integer", value: 10, enabled: true, computed: false},
-      color: {type: "color", value: "#0000FF", enabled: true, computed: false}
+      fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
+      stroke: {type: "color", value: "#FFFFFF", enabled: true, computed: false}
     }
   }
 }
@@ -422,6 +435,21 @@ export const piecesSlice = createSlice({
       }
     },
 
+    /**
+     * moveVertex() 
+     * @description changes the position of a vertex 
+     * @param pieceId the id of the piece to move 
+     * @param vertexId the id of the vertex to move
+     * @param x the change in x that took place as a result of dragging 
+     * @param y the change in y that took place as a result of dragging
+     */
+     moveVertex: (state, action) => {
+      state[action.payload.pieceId].sides[action.payload.vertexId].constraints.startPoint.value = {
+        x: action.payload.x,
+        y: action.payload.y
+      }
+    },
+
 
     /**
      * moveCirclePiece()
@@ -479,15 +507,14 @@ export const piecesSlice = createSlice({
     },
 
     /**
-    * removePiece()
-    * @description removes a piece from the list of pieces
-    * @param payload the piece to remove
+    * removePieces()
+    * @description removes an array of pieces from the list of pieces
+    * @param payload the ids of the piece to remove
     */
-    removePiece: (state, action) => { 
+    removePieces: (state, action) => { 
       let newPieces = {};
       for (const key of Object.keys(state)) {
-        if(key !== action.payload) {
-          console.log(key + " not removed");
+        if(!action.payload.includes(key)) {
           newPieces[key] = {
             ...state[key]
           }
@@ -917,10 +944,10 @@ export const {
   setSideStart, setSideEnd,
   selectAllPieces, selectPiece,
   deselectAllPieces, deselectPiece,
-  moveCirclePiece, movePiece, selectPieceAction,
+  moveCirclePiece, movePiece, moveVertex, selectPieceAction,
   setPieceConstraintValue,
   addPiece,
-  removePiece,
+  removePieces,
   setPieceConstraints,
   createPiece,
   createCirclePiece,

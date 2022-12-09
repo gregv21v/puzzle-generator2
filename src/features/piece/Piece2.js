@@ -11,9 +11,11 @@ import { createPathForLineEdge, getGlobalCoordinate } from "../util/draw";
  * Piece
  * @description Creates the piece component.
  * @param {Props} props the props of the component
+ * @param {Piece} piece the piece that this component will render
+ * @param {string} mode the type of mode that this component is in. You can either render vertices or edges
  * @returns an object the describes the rendering of the component
  */
-export function Piece2({piece}) {
+export function Piece2({piece, mode}) {
     const pathRef = useRef()
     const dispatch = useDispatch()
 
@@ -80,6 +82,11 @@ export function Piece2({piece}) {
         return path;  
     }
 
+
+
+
+    
+
     /**
      * onClick()
      * @description selects the piece on click
@@ -92,16 +99,19 @@ export function Piece2({piece}) {
 
     // renders the piece
     return (
-        <path 
-            ref={pathRef} d={createPiecePath().toString()}
-            onClick={onClick}
-            transform={"rotate(" + 
-                piece.constraints.rotation.value + ", " + 
-                piece.constraints.center.value.x + ", " + 
-                piece.constraints.center.value.y + ")"
-            }
-            fill={piece.constraints.fill.value} 
-            stroke={(piece.selected) ? "green" : piece.constraints.stroke.value} 
-            strokeWidth={(piece.selected) ? "4" : "2"} />
+        <g>
+            <path 
+                ref={pathRef} d={createPiecePath().toString()}
+                onClick={onClick}
+                transform={"rotate(" + 
+                    piece.constraints.rotation.value + ", " + 
+                    piece.constraints.center.value.x + ", " + 
+                    piece.constraints.center.value.y + ")"
+                }
+                fill={piece.constraints.fill.value} 
+                stroke={(piece.selected) ? "green" : piece.constraints.stroke.value} 
+                strokeWidth={(piece.selected) ? "4" : "2"} />
+        </g>    
+            
     )
 }

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedPiecesId, setSelectedPiecesId } from "../../selectedPiecesId/selectedPiecesIdSlice";
 import { CanvasPanel } from "../../sidesPanel/CanvasPanel";
 
-import { addPiece, removeAllPieces, removePiece } from "../../pieces/piecesSlice";
+import { addPiece, generateFreePiece, removeAllPieces, removePieces } from "../../pieces/piecesSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../../lastPieceId/lastPieceIdSlice";
 import { forwardRef } from "react";
 
@@ -13,6 +13,7 @@ import { forwardRef } from "react";
  */
 export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
     const selectedPieceId = useSelector(selectSelectedPiecesId)[0]
+    const selectedPiecesIds = useSelector(selectSelectedPiecesId)
     const dispatch = useDispatch()
     let selectedPiece = pieces[selectedPieceId]
     const lastId = useSelector(selectLastPieceId)
@@ -41,7 +42,7 @@ export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
      * @description deletes the currently selected piece
      */
     function deletePiece() {
-        dispatch(removePiece(selectedPiece.id)) 
+        dispatch(removePieces([selectedPiece.id])) 
         dispatch(setSelectedPiecesId([Object.keys(pieces)[0]]))
     }
 
@@ -53,6 +54,28 @@ export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
         dispatch(removeAllPieces())
     }
 
+    /**
+     * mergePieces()
+     * @description merges the pieces together 
+     */
+    function mergePieces() {
+        let newPiece = generateFreePiece(selectedPiecesIds[0])
+        let index = 0;
+        
+        for (const id of selectedPiecesIds) {
+            for (const side of Object.values(pieces[id].sides)) {
+                newPiece.sides[index + ""] = {
+                    ...side,
+                    id: index + ""
+                }
+                index++;
+            }
+        }
+
+        dispatch(removePieces(selectedPiecesIds))
+        dispatch(addPiece(newPiece))
+    }
+
     return (
         <div>
             <CanvasPanel ref={canvasRef} pieces={pieces}></CanvasPanel>
@@ -61,6 +84,7 @@ export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
             <button onClick={copyPiece} title="creates a new piece based on the current constraints">Copy</button>
             <button onClick={deleteAllPieces} title="clear all the puzzle pieces from the canvas">Clear</button>
             <button onClick={deletePiece} title="delete the currently selected piece">Delete</button>
+            <button onClick={mergePieces} title="Merges the currently selected peices together">Merge</button>
             <button title="organzie the pieces into a grid" disabled>Organize (NYI)</button>
             <button title="undo the last action" disabled>Undo (NYI)</button>
             <button title="redo the last action" disabled>Redo (NYI)</button>

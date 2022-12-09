@@ -27,7 +27,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
     const lastId = useSelector(selectLastPieceId)
     const selectedPieceId = useSelector(selectSelectedPiecesId)[0]
     const [lastSideId, setLastSideId] = useState(0);
-    const [currentPiece, setCurrentPiece] = useState(generateFreePiece(0, {x: 0, y: 0}));
+    const [currentPiece, setCurrentPiece] = useState(generateFreePiece(0));
 
     
 
@@ -110,16 +110,13 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 if(newPieceId === -1 && tool === "FreeHandDraw") {
 
                     // create the new piece with two sides
-                    let newPiece = generateFreePiece(lastId+1, {x: point[0], y: point[1]}, true)
-                    let sides = {...newPiece.sides};
-                    sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: point[0], y: point[1]})
+                    let newPiece = generateFreePiece(lastId+1, true)
+                    newPiece.sides[lastSideId] = generateLineSide(lastSideId, {x: point[0], y: point[1]})
+                    newPiece.sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: point[0], y: point[1]})
 
                     
                     // update the current piece
-                    setCurrentPiece(currentPiece => ({
-                        ...newPiece,
-                        sides
-                    }))
+                    setCurrentPiece(newPiece)
 
                     setLastSideId(lastSideId+1)
 
@@ -136,17 +133,18 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                         point[axisAlign] = startPoint[axisAlign]
                     setEndPoint(point)
 
-                    // update the end side
-                    setCurrentPiece(state => {
-                        let sides = {...state.sides}
-                        sides[lastSideId].constraints.startPoint.value = {x: endPoint[0], y: endPoint[1]}
+                    if(tool === "FreeHandDraw") {
+                        // update the end side
+                        setCurrentPiece(state => {
+                            let sides = {...state.sides}
+                            sides[lastSideId].constraints.startPoint.value = {x: endPoint[0], y: endPoint[1]}
 
-                        return {
-                            ...state,
-                            sides: sides
-                        }
-                    })
-
+                            return {
+                                ...state,
+                                sides: sides
+                            }
+                        })
+                    }
                 }
             })
             .on("mouseup", (event) => {
@@ -161,7 +159,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                     switch(tool) {
                         case "Circle": 
                             dispatch(addPiece(generateCirclePiece(
-                                lastId+1, 
+                                (lastId+1) + "", 
                                 startPoint[0], 
                                 startPoint[1],
                                 dist(
@@ -174,7 +172,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             break;
                         case "Polygon":
                             dispatch(addPiece(generateSidedPiece(
-                                lastId+1, 
+                                (lastId+1) + "", 
                                 "radius", 
                                 dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
                                 3,
@@ -189,7 +187,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             let height = Math.abs(endPoint[1] - startPoint[1]);
 
                             dispatch(addPiece(generateRectangularPiece(
-                                lastId+1,
+                                (lastId+1) + "",
                                 width, height,
                                 startPoint[0] + width/2, startPoint[1] + height/2,
                                 true
@@ -207,6 +205,8 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                                 width: Math.abs(endPoint[0] - startPoint[0]),
                                 height: Math.abs(endPoint[1] - startPoint[1])
                             })
+
+                            console.log(pieceIds);
 
                             dispatch(setSelectedPiecesId(pieceIds))
                             dispatch(selectPiecesAction(pieceIds))
