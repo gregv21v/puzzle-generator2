@@ -47,7 +47,7 @@ export function PiecesPanel() {
                                     background: (pieces[key].selected) ? "grey" : "darkgrey", 
                                     listStyleType: "none", 
                                 }}
-                                onClick={() => onPieceClicked(key)}
+                                onClick={() => onPieceClicked(parseInt(key))}
                             >
                                 <input 
                                     type="text" 

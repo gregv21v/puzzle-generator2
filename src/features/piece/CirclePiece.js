@@ -1,7 +1,7 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { moveCirclePiece, selectPieceAction } from '../pieces/piecesSlice';
+import { movePiece, selectPieceAction } from '../pieces/piecesSlice';
 import { setSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
 
 
@@ -23,7 +23,7 @@ export function CirclePiece({piece}) {
                 //dispatch(deselectAllPieces())
                 //dispatch(selectPiece([piece.id]))
                 if(piece.selected)     
-                    dispatch(moveCirclePiece({
+                    dispatch(movePiece({
                         pieceId: piece.id,
                         x: event.x,
                         y: event.y

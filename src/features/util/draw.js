@@ -5,6 +5,57 @@
 import Line from "./Line";
 
 
+
+
+/**
+ * recalculateCenter() 
+ * @description recalculates the center of a piece
+ * @param {Piece} piece the piece to recalculate the center for 
+ * @returns the piece with its new center 
+ */
+export function recalculateCenter(piece) {
+    let newPiece = {...piece}
+
+    // add up the x and y coordinates of each side
+    let totals = {x: 0, y: 0}
+    for (const side of Object.values(newPiece.sides)) {
+        totals.x += side.constraints.startPoint.value.x;
+        totals.y += side.constraints.startPoint.value.y;
+    }
+
+    // set the new center 
+    newPiece.constraints.center.value = {
+        x: totals.x / Object.keys(newPiece.sides).length,
+        y: totals.y / Object.keys(newPiece.sides).length
+    } 
+
+    // recalculate the position of each side
+    for (const key of Object.keys(newPiece.sides)) {
+        newPiece.sides[key].constraints.startPoint.value.x -= newPiece.constraints.center.value.x
+        newPiece.sides[key].constraints.startPoint.value.y -= newPiece.constraints.center.value.y
+    }
+
+    return newPiece;
+}
+
+/**
+ * adapted from: https://9to5answer.com/rotate-rectangle-around-a-point
+ * rotatePoint()
+ * @description rotates a point around another point
+ * @param {Point} center the point to rotate around
+ * @param {Point} point the point to rotate 
+ * @param {Number} angle the angle in degress to rotate the point by
+ * @returns the rotated point
+ */
+export function rotatePoint(center, point, angle) {
+    let angleInRadians = angle * (Math.PI / 180)
+    return {
+        x: Math.cos(angleInRadians) * (point.x-center.x) - Math.sin(angleInRadians) * (point.y-center.y) + center.x,
+        y: Math.sin(angleInRadians) * (point.x-center.x) + Math.cos(angleInRadians) * (point.y-center.y) + center.y
+    };
+}
+
+
 /**
  * getGlobalCoordinate()
  * @description get the global position of a given point on a piece

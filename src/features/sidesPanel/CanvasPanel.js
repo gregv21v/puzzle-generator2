@@ -85,14 +85,6 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                 closeFreeFormPiece();
                 dispatch(setTool("Selection"))
                 break;
-            case "x":
-                // align the point with the x axis
-                setAxisAlign(0)
-                break;
-            case "y": 
-                // align the point with the y axis
-                setAxisAlign(1)
-                break;
             default: break;
         }
             
@@ -111,6 +103,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
 
                     // create the new piece with two sides
                     let newPiece = generateFreePiece(lastId+1, true)
+                    newPiece.order = [0, 1]
                     newPiece.sides[lastSideId] = generateLineSide(lastSideId, {x: point[0], y: point[1]})
                     newPiece.sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: point[0], y: point[1]})
 
@@ -141,7 +134,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
 
                             return {
                                 ...state,
-                                sides: sides
+                                sides
                             }
                         })
                     }
@@ -153,13 +146,10 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                     setMouseIsDown(false)
                     setSelectionBoxHidden(true)
 
-                
-                    // select the pieces within the selection box
-
                     switch(tool) {
                         case "Circle": 
                             dispatch(addPiece(generateCirclePiece(
-                                (lastId+1) + "", 
+                                lastId+1, 
                                 startPoint[0], 
                                 startPoint[1],
                                 dist(
@@ -172,7 +162,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             break;
                         case "Polygon":
                             dispatch(addPiece(generateSidedPiece(
-                                (lastId+1) + "", 
+                                lastId+1, 
                                 "radius", 
                                 dist({x: startPoint[0], y: startPoint[1]}, {x: endPoint[0], y: endPoint[1]}),
                                 3,
@@ -187,7 +177,7 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             let height = Math.abs(endPoint[1] - startPoint[1]);
 
                             dispatch(addPiece(generateRectangularPiece(
-                                (lastId+1) + "",
+                                lastId+1,
                                 width, height,
                                 startPoint[0] + width/2, startPoint[1] + height/2,
                                 true
@@ -206,8 +196,6 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                                 height: Math.abs(endPoint[1] - startPoint[1])
                             })
 
-                            console.log(pieceIds);
-
                             dispatch(setSelectedPiecesId(pieceIds))
                             dispatch(selectPiecesAction(pieceIds))
                             break;
@@ -217,11 +205,14 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                             // update the end side
                             setCurrentPiece(state => {
                                 let sides = {...state.sides}
+                                let order = [...state.order]
                                 sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: endPoint[0], y: endPoint[1]})
+                                order.push(lastSideId+1)
 
                                 return {
                                     ...state,
-                                    sides: sides
+                                    sides,
+                                    order
                                 }
                             })
                 

@@ -108,9 +108,9 @@ export function ConstraintsTable({root, constraints, updateConstraints, updateCo
                 ) 
             default: 
                 return (
-                    <td>
-                        <tr colSpan="3">Empty</tr>
-                    </td>
+                    <tr key={"empty"}>
+                        <td colSpan="3">Empty</td>
+                    </tr>
                 )
         }
     }

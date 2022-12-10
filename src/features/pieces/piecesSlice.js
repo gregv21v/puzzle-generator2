@@ -4,8 +4,8 @@ import { dist } from '../util/util';
 import _ from "lodash";
 
 const initialState = {
-  "0": generateSidedPiece("0"),
-  "1": generateRectangularPiece("1"),
+  0: generateSidedPiece(0),
+  1: generateRectangularPiece(1),
 };
 
 
@@ -125,7 +125,7 @@ export function generateSide(id, constraintValues) {
 /**
  * generateSidedPiece()
  * @description generates a sided piece given either a radius or side length
- * @param {number} id the id of the new piece
+ * @param {integer} id the id of the new piece
  * @param {string} constraintName the name of the constraint to generate the piece with
  * @param {number} value the value of the constraint to generate the piece with
  * @param {number} sideCount the number of sides the piece starts out with
@@ -149,7 +149,8 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
       fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
       stroke: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
-    sides: {}
+    sides: {},
+    order: []
   }
 
 
@@ -174,6 +175,7 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
   for (let index = 0; index < sideCount; index++) {
     let angle1 = (index) * theta
 
+    // add the new side to the polygon
     newPiece.sides[index] = generateLineSide(
       index, 
       { // start point
@@ -182,6 +184,8 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
       },
       newPiece.constraints.sideLength.value
     );
+
+    newPiece.order.push(index)
   }
 
   return newPiece;
@@ -190,7 +194,7 @@ export function generateSidedPiece(id, constraintName="radius", value=40, sideCo
 /**
  * generateRectangularPiece()
  * @description generates a rectangle piece
- * @param {string} id the id of the piece
+ * @param {integer} id the id of the piece
  * @param {number} width the width of the rectangle
  * @param {number} height the height of the rectangle
  * @param {number} x the x coordinate of the rectangle
@@ -213,7 +217,8 @@ export function generateRectangularPiece(id, width=150, height=150, x=150, y=150
       fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
       stroke: {type: "color", value: "#0000FF", enabled: true, computed: false}
     },
-    sides: {}
+    sides: {},
+    order: [0, 1, 2, 3] // the order in which the vertices appear
   }
 
   // Create the sides for the polygon
@@ -269,7 +274,8 @@ export function generateFreePiece(id, selected=true) {
       fill: {type: "color", value: "#0000FF", enabled: true, computed: false},
       stroke: {type: "color", value: "black", enabled: true, computed: false}
     },
-    sides: {}
+    sides: {}, 
+    order: []
   }
 } 
 
@@ -322,8 +328,45 @@ export const piecesSlice = createSlice({
       state[action.payload.pieceId].edges.push(action.payload.newEdge)
     },
 
-    
 
+    /**
+     * moveSideUp()
+     * @description moves the side of a piece up
+     * @param {integer} pieceId the id of the piece
+     * @param {integer} location the location of the side in the current ordering 
+     */
+    moveSideUp: (state, action) => {
+      let currentState = current(state);
+      console.log(currentState);
+      let location = action.payload.location
+      let length = currentState[action.payload.pieceId].order.length;
+      let slotAbove = (location - 1 < 0) ? length-1 : location - 1;
+      console.log(location);
+      console.log(slotAbove);
+
+      // swap the two sides
+      let temp = currentState[action.payload.pieceId].order[location]
+      state[action.payload.pieceId].order[location] = currentState[action.payload.pieceId].order[slotAbove]
+      state[action.payload.pieceId].order[slotAbove] = temp;
+    },
+
+    /**
+     * moveSideDown()
+     * @description moves the side of a piece down
+     * @param {integer} pieceId the id of the piece
+     * @param {integer} location the location of the side in the current ordering 
+     */
+    moveSideDown: (state, action) => {
+      let currentState = current(state);
+      let location = action.payload.location
+      let length = currentState[action.payload.pieceId].order.length;
+      let slotBelow = (location + 1) % length;
+
+      // swap the two sides
+      let temp = currentState[action.payload.pieceId].order[location]
+      state[action.payload.pieceId].order[location] = currentState[action.payload.pieceId].order[slotBelow]
+      state[action.payload.pieceId].order[slotBelow] = temp;
+    },
 
     /**
      * loadPieces()
@@ -371,8 +414,9 @@ export const piecesSlice = createSlice({
      * @param {Array[string]} pieceIds the ids of the pieces to select
      */
     selectPiecesAction: (state, action) => {
+      
       for (const key of Object.keys(state)) {
-        if(action.payload.includes(key)) {
+        if(action.payload.includes(parseInt(key))) {
           state[key].selected = true;
         } else {
           state[key].selected = false;
@@ -386,7 +430,7 @@ export const piecesSlice = createSlice({
      */
     selectPieceAction: (state, action) => {
       for (const key of Object.keys(state)) {
-        if(key === "" + action.payload) {
+        if(parseInt(key) === action.payload) {
           state[key].selected = true;
         } else {
           state[key].selected = false;
@@ -448,16 +492,6 @@ export const piecesSlice = createSlice({
         x: action.payload.x,
         y: action.payload.y
       }
-    },
-
-
-    /**
-     * moveCirclePiece()
-     * @description moves the circle piece
-     * 
-     */
-    moveCirclePiece: (state, action) => {
-      state[action.payload.pieceId].constraints.center.value = {x: action.payload.x, y: action.payload.y};
     },
 
 
@@ -703,6 +737,7 @@ export const piecesSlice = createSlice({
      * @param side the side to add to the piece
      */
     addSide: (state, action) => {
+      //console.log();
       return {
         ...state,
         [action.payload.pieceId]:{
@@ -710,7 +745,8 @@ export const piecesSlice = createSlice({
           sides: {
             ...state[action.payload.pieceId].sides,
             [action.payload.side.id]: action.payload.side
-          }
+          },
+          order: [...state[action.payload.pieceId].order].concat(action.payload.side.id)
         }
       }
     },
@@ -724,12 +760,18 @@ export const piecesSlice = createSlice({
     removeSide: (state, action) => {
       let newSides = {...current(state)[action.payload.pieceId].sides}
       delete newSides[action.payload.sideId]
+      let order = []
+      for (const key of state[action.payload.pieceId].order) {
+        if(key !== action.payload.sideId)
+          order.push(key)
+      }
 
       return {
         ...state,
         [action.payload.pieceId]:{
           ...state[action.payload.pieceId],
-          sides: newSides
+          sides: newSides,
+          order
         }
       }
     },
@@ -945,6 +987,7 @@ export const {
   selectAllPieces, selectPiece,
   deselectAllPieces, deselectPiece,
   moveCirclePiece, movePiece, moveVertex, selectPieceAction,
+  moveSideUp, moveSideDown,
   setPieceConstraintValue,
   addPiece,
   removePieces,

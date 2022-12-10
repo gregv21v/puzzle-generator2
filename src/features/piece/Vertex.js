@@ -5,6 +5,7 @@ import { moveVertex } from "../pieces/piecesSlice";
 import { getGlobalCoordinate, getLocalCoordinate } from "../util/draw"
 import * as d3 from "d3"
 import { selectTool } from "../tool/toolSlice";
+import { selectAxisLock } from "../axisLock/axisLockSlice";
 
 
 /**
@@ -17,6 +18,7 @@ export function Vertex({piece, vertex}) {
     const circleRef = useRef(null);
     const dispatch = useDispatch();
     const tool = useSelector(selectTool)
+    const axisLock = useSelector(selectAxisLock)
     const vertexSize = 10
 
     let globalVertex = getGlobalCoordinate(piece, vertex.constraints.startPoint.value)
@@ -32,8 +34,8 @@ export function Vertex({piece, vertex}) {
                     dispatch(moveVertex({
                         pieceId: piece.id,
                         vertexId: vertex.id,
-                        x: localVertex.x,
-                        y: localVertex.y
+                        x: (axisLock === "y") ? vertex.constraints.startPoint.value.x : localVertex.x,
+                        y: (axisLock === "x") ? vertex.constraints.startPoint.value.y : localVertex.y
                     }))
                 }
             });
@@ -41,17 +43,25 @@ export function Vertex({piece, vertex}) {
     }, [piece, vertex, dispatch, circleRef])
 
     return (
-        <rect 
-            ref={circleRef}
-            key={vertex.id} 
-            width={vertexSize} 
-            height={vertexSize}
-            strokeWidth="2"
-            x={globalVertex.x - vertexSize/2}
-            y={globalVertex.y - vertexSize/2}
-            stroke="green"
-            fill="white"
-        >
-        </rect>
+        <g>
+            
+            <rect 
+                ref={circleRef}
+                key={vertex.id} 
+                width={vertexSize} 
+                height={vertexSize}
+                strokeWidth="2"
+                x={globalVertex.x - vertexSize/2}
+                y={globalVertex.y - vertexSize/2}
+                stroke="green"
+                fill="white"
+            ></rect>
+            <text
+                visibility={"true"}
+                key={vertex.id + " text"}
+                x={globalVertex.x - vertexSize/2}
+                y={globalVertex.y - vertexSize/2}
+            >{vertex.id}</text>
+        </g>     
     )
 }

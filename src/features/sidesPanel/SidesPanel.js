@@ -1,7 +1,7 @@
 import React from 'react';
 import { Panel } from '../panel/Panel';
 import { useDispatch, useSelector } from 'react-redux';
-import { createPiece, addSide, removeSide, selectPieces, setConstraintValue, toggleConstraintComputed } from '../pieces/piecesSlice';
+import { createPiece, addSide, removeSide, selectPieces, setConstraintValue, toggleConstraintComputed, moveSideUp, moveSideDown } from '../pieces/piecesSlice';
 import { ConstraintsTable } from '../constraints/ConstraintsTable';
 import { updatePieceWithPolygon } from '../util/pieceFunctions';
 import { getPolygon } from '../util/geometry';
@@ -249,16 +249,11 @@ export function SidesPanel({title, piece}) {
         }*/
     }
 
-
-    
-
-    console.log("Sides Panel");
-
     
     return (
         <Panel title={title}>
             {
-                (piece) ? Object.keys(piece.sides).map(key => {
+                (piece) ? piece.order.map(key => {
                     return (
                         <Panel title={key} key={key}>
 
@@ -280,6 +275,15 @@ export function SidesPanel({title, piece}) {
                                     sideId: key
                                 }))}>-</button>
                             </div>
+
+                            <button onClick={() => dispatch(moveSideUp({
+                                pieceId: piece.id, 
+                                location: piece.order.indexOf(key)
+                            }))}>/\</button>
+                            <button onClick={() => dispatch(moveSideDown({
+                                pieceId: piece.id, 
+                                location: piece.order.indexOf(key)
+                            }))}>\/</button>
                         </Panel>
                     )
                 }) : ""

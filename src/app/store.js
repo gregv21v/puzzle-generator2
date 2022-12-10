@@ -6,6 +6,8 @@ import toolReducer from "../features/tool/toolSlice";
 import selectionBoxReducer from "../features/selectionBox/selectionBoxSlice";
 import logReducer from "../features/log/logSlice";
 import panelSizesReducer from "../features/panel/panelSlice";
+import axisLockReducer from '../features/axisLock/axisLockSlice';
+
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +17,7 @@ export const store = configureStore({
     tool: toolReducer,
     selectionBox: selectionBoxReducer,
     log: logReducer, 
-    panelSizes: panelSizesReducer
+    panelSizes: panelSizesReducer, 
+    axisLock: axisLockReducer
   },
 });

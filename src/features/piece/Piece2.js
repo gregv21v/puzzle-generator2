@@ -92,7 +92,7 @@ export function Piece2({piece, mode}) {
      * @description selects the piece on click
      */
     function onClick() {
-        console.log(piece.id);
+        console.log(typeof piece.id);
         dispatch(selectPieceAction(piece.id))
         dispatch(setSelectedPiecesId([piece.id]))
     }

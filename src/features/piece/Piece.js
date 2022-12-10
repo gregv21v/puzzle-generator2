@@ -1,7 +1,8 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { movePiece, selectPieceAction } from '../pieces/piecesSlice';
+import { selectAxisLock } from "../axisLock/axisLockSlice";
+import { movePiece, selectPieceAction, selectPiecesAction } from '../pieces/piecesSlice';
 import { setSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
 import { selectTool } from "../tool/toolSlice";
 import { createPathForArcSide, createPathForLineSide, getGlobalCoordinate } from "../util/draw";
@@ -22,6 +23,7 @@ export function Piece({piece}) {
     const dispatch = useDispatch()
     const tool = useSelector(selectTool)
     const mode = "vertices";
+    const axisLock = useSelector(selectAxisLock)
 
     /**
      * Implements the ability to drag pieces around the canvas
@@ -30,10 +32,15 @@ export function Piece({piece}) {
         const handleDrag = d3.drag()
             .on('drag', function(event) {
                 if(piece.selected && tool === "Selection") {
+                    let mousePoint = {
+                        x: (axisLock === "y") ? piece.constraints.center.value.x : event.x, 
+                        y: (axisLock === "x") ? piece.constraints.center.value.y : event.y
+                    }
+
                     dispatch(movePiece({
                         pieceId: piece.id,
-                        x: event.x,
-                        y: event.y
+                        x: mousePoint.x,
+                        y: mousePoint.y
                     }))
                 }
             });
@@ -72,7 +79,7 @@ export function Piece({piece}) {
     function createPiecePath() {
         let path = d3.path();
 
-        if(Object.keys(piece.sides).length >= 3) {
+        if(piece.order.length >= 3) {
             let current = null,
                 next = null,
                 first = null,
@@ -80,7 +87,9 @@ export function Piece({piece}) {
 
             
             
-            for (let side of Object.values(piece.sides)) {
+            for (let key of piece.order) {
+                let side = piece.sides[key]
+
                 // first side 
                 if(i === 0) {
                     let start = getGlobalCoordinate(piece, side.constraints.startPoint.value)
@@ -130,13 +139,29 @@ export function Piece({piece}) {
         </g>
     }
 
+
+    /**
+     * renderCenter()
+     * @description renders the center point for the piece
+     */
+    function renderCenter() {
+        return <rect
+            width={10}
+            height={10}
+            x={piece.constraints.center.value.x - 5}
+            y={piece.constraints.center.value.y - 5}
+            fill="white"
+            stroke="red"
+        >
+        </rect>
+    }
+
     /**
      * onClick()
      * @description selects the piece on click
      */
     function onClick() {
-        console.log(piece.id);
-        dispatch(selectPieceAction(piece.id))
+        dispatch(selectPiecesAction([piece.id]))
         dispatch(setSelectedPiecesId([piece.id]))
     }
 
@@ -156,7 +181,7 @@ export function Piece({piece}) {
                 stroke={(piece.selected && tool !== "Edit") ? "green" : piece.constraints.stroke.value} 
                 strokeWidth={(piece.selected) ? "4" : "2"} />
             {(piece.selected && tool === "Edit") ? renderVertices() : ""}
-            
+            {(piece.selected && tool === "Edit") ? renderCenter() : ""}
         </g>
             
     )

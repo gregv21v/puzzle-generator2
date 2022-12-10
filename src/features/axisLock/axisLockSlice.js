@@ -1,18 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = "";
+const initialState = 'n';
 
-export const logSlice = createSlice({
-  name: 'log',
+// You can lock the axis in the x, y or none axis.
+// locking the axis in the none axis is represented by n
+
+export const axisLockSlice = createSlice({
+  name: 'axisLock',
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     /**
-     * setText()
-     * @description sets the text of the log
-     * @param payload the new text
+     * setAxisLock()
+     * @description sets the axis to lock to
+     * @param payload the new axisLock
      */
-    setText: (state, action) => {
+    setAxisLock: (state, action) => {
         return action.payload;
     }
   }
@@ -21,12 +24,12 @@ export const logSlice = createSlice({
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectPieces = (state) => state.pieces;
+export const selectAxisLock = (state) => state.axisLock;
 
 
 export const { 
-  setText
-} = logSlice.actions;
+  setAxisLock
+} = axisLockSlice.actions;
 
-export default logSlice.reducer;
+export default axisLockSlice.reducer;
 
