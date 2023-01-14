@@ -134,8 +134,9 @@ export function Piece({piece}) {
         >
             {
                 Object.values(piece.sides).map(side => {
-                   return <Vertex piece={piece} vertex={side}></Vertex>
-                })}
+                   return <Vertex key={side.id} piece={piece} vertex={side}></Vertex>
+                })
+            }
         </g>
     }
 
@@ -146,6 +147,7 @@ export function Piece({piece}) {
      */
     function renderCenter() {
         return <rect
+            key={"center"}
             width={10}
             height={10}
             x={piece.constraints.center.value.x - 5}
@@ -168,7 +170,7 @@ export function Piece({piece}) {
     // renders the piece
     //{(mode === "edges") ? renderEdges() : ""}
     return (
-        <g>
+        <g key={piece.id}>
             <path 
                 ref={pathRef} d={createPiecePath().toString()}
                 onClick={onClick}

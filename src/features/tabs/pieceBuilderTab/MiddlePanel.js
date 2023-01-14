@@ -4,10 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectSelectedPiecesId, setSelectedPiecesId } from "../../selectedPiecesId/selectedPiecesIdSlice";
 import { CanvasPanel } from "../../sidesPanel/CanvasPanel";
 
-import { addPiece, generateFreePiece, removeAllPieces, removePieces } from "../../pieces/piecesSlice";
+import { addPiece, removeAllPieces, removePieces } from "../../pieces/piecesSlice";
+import {generateFreePiece} from "../../util/predefinedPieces";
 import { incrementLastPieceId, selectLastPieceId } from "../../lastPieceId/lastPieceIdSlice";
 import { forwardRef } from "react";
-import { getGlobalCoordinate, getLocalCoordinate, recalculateCenter, rotatePoint } from "../../util/draw";
+import { getGlobalCoordinate, getLocalCoordinate, recalculateCenter, recalculateLengths, rotatePoint } from "../../util/draw";
 
 /**
  * MiddlePanel - the middle panel of the piece builder tab
@@ -26,13 +27,11 @@ export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
      */
     function copyPiece() {
         dispatch(incrementLastPieceId())
-        let newPiece = {
+        dispatch(addPiece({
             ...selectedPiece,
             id: lastId + 1,
             selected: false
-        }
-        console.log(newPiece);
-        dispatch(addPiece(newPiece))
+        }))
     }
 
     /**
@@ -59,7 +58,6 @@ export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
     function mergePieces() {
         let newPiece = generateFreePiece(selectedPiecesIds[0])
         let index = 0;
-        let centerOfPiece = { x: 0, y: 0 }
         
         for (const id of selectedPiecesIds) {
             for (const sideKey of Object.keys(pieces[id].sides)) {
@@ -91,15 +89,14 @@ export const MiddlePanel = forwardRef(({pieces}, canvasRef) => {
                     }
                 }
 
-                console.log(newSide);
-
-                newPiece.sides[index + ""] = newSide
+                newPiece.sides[index] = newSide
 
                 index++;
             }
         }
 
-        newPiece = recalculateCenter(newPiece);
+
+        newPiece = recalculateCenter(recalculateLengths(newPiece));
 
         dispatch(removePieces(selectedPiecesIds))
         dispatch(addPiece(newPiece))

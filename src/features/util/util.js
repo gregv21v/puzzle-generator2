@@ -52,20 +52,34 @@ export function getPiecesWithinRect(pieces, rect) {
     let ids = [];
     for(const piece of Object.values(pieces)) {
 
-        // check to see that the vertex of each 
-        // side is in the rect
         let pieceIsWithinRect = true;
-        for (const side of Object.values(piece.sides)) {
-            let point = getGlobalCoordinate(piece, side.constraints.startPoint.value)
-            if(!pointWithinRect(point, rect)) {
-                pieceIsWithinRect = false;
-                break;
+
+        if(pieces.sides) {
+            // check to see that the vertex of each 
+            // side is in the rect
+            for (const side of Object.values(piece.sides)) {
+                let point = getGlobalCoordinate(piece, side.constraints.startPoint.value)
+                if(!pointWithinRect(point, rect)) {
+                    pieceIsWithinRect = false;
+                    break;
+                }
+            }
+        } else if(pieces.vertices) {
+            // check to see if all the vertices are within the rect
+            for (const vertex of piece.vertices) {
+                let point = getGlobalCoordinate(piece, vertex)
+                if(!pointWithinRect(point, rect)) {
+                    pieceIsWithinRect = false;
+                    break;
+                }
             }
         }
 
         if(pieceIsWithinRect) {
             ids.push(piece.id)
         }
+
+        
     }
 
     return ids;
@@ -93,7 +107,11 @@ export function getDisplayName(name) {
         type: "Type",
         center: "Center",
         width: "Width",
-        height: "Height"
+        height: "Height",
+        start: "Start",
+        end: "End",
+        fill: "Fill",
+        stroke: "Stroke"
     }[name]
 }
 

@@ -92,6 +92,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 * Create an undo feature that allows you to undo your last action
 * Create an edit feature that allow you to edit the vertices in any shape 
 * Evaluate mathamatical expressions in the text boxes
+* Make edges and vertices clickable
 
 
 

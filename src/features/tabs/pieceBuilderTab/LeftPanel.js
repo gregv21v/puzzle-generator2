@@ -1,6 +1,7 @@
 import { ConstraintsPanel } from "../../constraintsPanel/ConstraintsPanel";
 import { ToolPanel } from "../../tool/ToolPanel";
 import { PiecesPanel } from "./PiecesPanel";
+import { VerticesPanel } from "./VerticesPanel";
 
 /**
  * LeftPanel - the left panel of the piece builder tab
@@ -26,6 +27,10 @@ export function LeftPanel({piece}) {
                     else 
                         return <div></div>
                 })()
+            }
+
+            {
+                (piece && piece.vertices) ? <VerticesPanel key="vertices" piece={piece}></VerticesPanel> : ""
             }
         </div>
     )

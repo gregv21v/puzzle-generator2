@@ -4,13 +4,15 @@ import * as d3 from "d3"
 import { SelectionBox } from "../selectionBox/SelectionBox";
 import { CirclePiece } from "../piece/CirclePiece";
 import { dist, getPiecesWithinRect } from "../util/util";
-import { addPiece, selectPiecesAction, addSide, generateSidedPiece, generateLineSide, generateCirclePiece, generateFreePiece, generateRectangularPiece } from "../pieces/piecesSlice";
+import { addPiece, selectPiecesAction } from "../pieces/piecesSlice";
+import { generateSidedPiece, generateCirclePiece, generateFreePiece, generateRectangularPiece, generateLineSide } from "../util/predefinedPieces"
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTool, setTool } from "../tool/toolSlice";
 import { incrementLastPieceId, selectLastPieceId } from "../lastPieceId/lastPieceIdSlice";
 import { setSelectedPiecesId, selectSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
 import { Piece2 } from "../piece/Piece2";
 import { OpenPiece } from "../piece/OpenPiece";
+import { recalculateLengths } from "../util/draw";
 
 /**
  * CanvasPanel - the panel where all the pieces are drawn to 
@@ -67,6 +69,8 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
             // add the piece to the list of pieces
             dispatch(addPiece(piece))
 
+            setCurrentPiece(generateFreePiece(0))
+
             dispatch(incrementLastPieceId())
         }
     }
@@ -84,6 +88,14 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
             case "s":
                 closeFreeFormPiece();
                 dispatch(setTool("Selection"))
+                break;
+            case "x":
+                // align the point with the x axis
+                setAxisAlign(0)
+                break;
+            case "y": 
+                // align the point with the y axis
+                setAxisAlign(1)
                 break;
             default: break;
         }
@@ -107,6 +119,8 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                     newPiece.sides[lastSideId] = generateLineSide(lastSideId, {x: point[0], y: point[1]})
                     newPiece.sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: point[0], y: point[1]})
 
+                    newPiece = recalculateLengths(newPiece)
+
                     
                     // update the current piece
                     setCurrentPiece(newPiece)
@@ -129,12 +143,21 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                     if(tool === "FreeHandDraw") {
                         // update the end side
                         setCurrentPiece(state => {
-                            let sides = {...state.sides}
-                            sides[lastSideId].constraints.startPoint.value = {x: endPoint[0], y: endPoint[1]}
-
                             return {
                                 ...state,
-                                sides
+                                sides: {
+                                    ...state.sides,
+                                    [lastSideId]: {
+                                        ...state.sides[lastSideId],
+                                        constraints: {
+                                            ...state.sides[lastSideId].constraints,
+                                            startPoint: {
+                                                ...state.sides[lastSideId].constraints.startPoint,
+                                                value: {x: endPoint[0], y: endPoint[1]}
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         })
                     }
@@ -209,11 +232,11 @@ export const CanvasPanel = forwardRef(({pieces}, svgRef) => {
                                 sides[lastSideId+1] = generateLineSide(lastSideId+1, {x: endPoint[0], y: endPoint[1]})
                                 order.push(lastSideId+1)
 
-                                return {
-                                    ...state,
-                                    sides,
-                                    order
-                                }
+                                let newPiece = recalculateLengths({
+                                    ...state, sides, order
+                                })
+
+                                return newPiece
                             })
                 
                             break;

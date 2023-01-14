@@ -1,9 +1,13 @@
 import * as d3 from "d3"
 import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { selectAxisLock } from "../axisLock/axisLockSlice";
 import { movePiece, selectPieceAction } from '../pieces/piecesSlice';
 import { setSelectedPiecesId } from "../selectedPiecesId/selectedPiecesIdSlice";
+import { selectTool } from "../tool/toolSlice";
 import { createPathForLineEdge, getGlobalCoordinate } from "../util/draw";
+import { Vertex } from "./Vertex";
+import { Vertex2 } from "./Vertex2";
 
 
 
@@ -18,6 +22,8 @@ import { createPathForLineEdge, getGlobalCoordinate } from "../util/draw";
 export function Piece2({piece, mode}) {
     const pathRef = useRef()
     const dispatch = useDispatch()
+    const tool = useSelector(selectTool)
+    const axisLock = useSelector(selectAxisLock)
 
     /**
      * Implements the ability to drag pieces around the canvas
@@ -69,7 +75,8 @@ export function Piece2({piece, mode}) {
         for (let edge of piece.edges) {
             // first side 
             if(first) {
-                let start = getGlobalCoordinate(piece, piece.vertices[edge.constraints.start.value])
+                let point = (piece.vertices[edge.constraints.start.value]) ? piece.vertices[edge.constraints.start.value] : {x: 0, y: 0}
+                let start = getGlobalCoordinate(piece, point)
                 path.moveTo(start.x, start.y);   
                 first = false;    
             }
@@ -83,7 +90,44 @@ export function Piece2({piece, mode}) {
     }
 
 
+    /**
+     * renderVertices()
+     * @description renders the vertices of the shape
+     * @returns returns a rendering of the vertices of the shape
+     */
+    function renderVertices() {
+        return <g
+            transform={"rotate(" + 
+                piece.constraints.rotation.value + ", " + 
+                piece.constraints.center.value.x + ", " + 
+                piece.constraints.center.value.y + ")"
+            }
+        >
+            {
+                piece.vertices.map((vertex, index) => {
+                   return <Vertex2 key={index} index={index} piece={piece} vertex={vertex}></Vertex2>
+                })
+            }
+        </g>
+    }
 
+
+    /**
+     * renderCenter()
+     * @description renders the center point for the piece
+     */
+    function renderCenter() {
+        return <rect
+            key={"center"}
+            width={10}
+            height={10}
+            x={piece.constraints.center.value.x - 5}
+            y={piece.constraints.center.value.y - 5}
+            fill="white"
+            stroke="red"
+        >
+        </rect>
+    }
 
     
 
@@ -99,7 +143,7 @@ export function Piece2({piece, mode}) {
 
     // renders the piece
     return (
-        <g>
+        <g key={piece.id}>
             <path 
                 ref={pathRef} d={createPiecePath().toString()}
                 onClick={onClick}
@@ -109,9 +153,11 @@ export function Piece2({piece, mode}) {
                     piece.constraints.center.value.y + ")"
                 }
                 fill={piece.constraints.fill.value} 
-                stroke={(piece.selected) ? "green" : piece.constraints.stroke.value} 
+                stroke={(piece.selected && tool !== "Edit") ? "green" : piece.constraints.stroke.value} 
                 strokeWidth={(piece.selected) ? "4" : "2"} />
-        </g>    
+            {(piece.selected && tool === "Edit") ? renderVertices() : ""}
+            {(piece.selected && tool === "Edit") ? renderCenter() : ""}
+        </g>
             
     )
 }

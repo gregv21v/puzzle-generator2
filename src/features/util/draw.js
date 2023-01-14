@@ -3,6 +3,7 @@
  */
 
 import Line from "./Line";
+import { dist } from "./util";
 
 
 
@@ -36,6 +37,41 @@ export function recalculateCenter(piece) {
     }
 
     return newPiece;
+}
+
+/**
+ * recalculateLengths()
+ * @description recalculates the lengths of the sides on the pieces
+ * @param {Piece} piece the piece to recalculate the lengths for 
+ * @returns the new piece with the recalculated lengths
+ */
+export function recalculateLengths(piece) {
+    
+    // calculate lengths
+    let sides = {}
+    for (let index = 0; index < piece.order.length; index++) {
+        let current = piece.sides[index];
+        let next = piece.sides[(index + 1) % piece.order.length]
+        
+        sides[index] = {
+            ...current,
+            constraints: {
+                ...current.constraints,
+                length: {
+                    ...current.constraints.length,
+                    value: dist(
+                        current.constraints.startPoint.value,
+                        next.constraints.startPoint.value
+                    ) 
+                }
+            }
+        }
+    }
+
+    return {
+        ...piece,
+        sides
+    };
 }
 
 /**

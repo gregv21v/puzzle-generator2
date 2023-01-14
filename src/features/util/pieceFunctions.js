@@ -1,4 +1,10 @@
-import { addSide, generateSide, setConstraintValue } from "../pieces/piecesSlice";
+/**
+ * This file contains functions that allow you to update the piece in the store
+ */
+
+
+import { addSide, setConstraintValue } from "../pieces/piecesSlice";
+import { generateSide } from "./predefinedPieces"
 import { getPolygon } from "./geometry";
 
 /**

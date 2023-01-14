@@ -5,7 +5,7 @@ import { dist } from "./util";
  * @description gets a point on a polygon with all equal sides
  * @param {point} centerPoint the center point of the polygon
  * @param {number} radius the radius of the polygon
- * @param {number} angle the angle on the polygon
+ * @param {number} angle the angle on the polygon in degrees
  */
 export function getPointOnPolygon(radius, angle) {
     return {
@@ -91,7 +91,7 @@ export function getPolygonSideLength(sideCount, radius) {
  */
 export function getPolygonRadius(sideCount, sideLength) {
     let theta = 360 / sideCount;
-    return sideLength / (2 * Math.tan((theta/2) * (Math.PI / 180)))
+    return sideLength / (Math.tan((theta/2) * (Math.PI / 180)))
 }
 
 
